@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  PLACEHOLDER character cutout for the interruption overlay.
+
+  It is a flat-design "mildly unimpressed" face on a fully transparent background, so it
+  reads as a floating cutout with no rectangle behind it. Replace it later by dropping a
+  transparent PNG named `pause_character.png` into res/drawable/ and pointing the overlay at
+  R.drawable.pause_character (see PauseOverlay.kt) — no other change required.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="220dp"
+    android:height="220dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+
+    <!-- Head -->
+    <path
+        android:pathData="M100,26 a72,72 0 1,0 0.01,0 z"
+        android:fillColor="#FFFCE2B6" />
+
+    <!-- Cheeks / blush -->
+    <path
+        android:pathData="M64,116 a12,9 0 1,0 0.01,0 z"
+        android:fillColor="#FFF7A28F"
+        android:fillAlpha="0.55" />
+    <path
+        android:pathData="M136,116 a12,9 0 1,0 0.01,0 z"
+        android:fillColor="#FFF7A28F"
+        android:fillAlpha="0.55" />
+
+    <!-- Eyes -->
+    <path
+        android:pathData="M76,92 a8,9 0 1,0 0.01,0 z"
+        android:fillColor="#FF3B3340" />
+    <path
+        android:pathData="M124,92 a8,9 0 1,0 0.01,0 z"
+        android:fillColor="#FF3B3340" />
+
+    <!-- Eyebrows (gently skeptical) -->
+    <path
+        android:pathData="M60,72 L88,68"
+        android:strokeColor="#FF3B3340"
+        android:strokeWidth="7"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M112,68 L140,72"
+        android:strokeColor="#FF3B3340"
+        android:strokeWidth="7"
+        android:strokeLineCap="round" />
+
+    <!-- Mouth (a small, unconvinced line) -->
+    <path
+        android:pathData="M80,132 Q100,138 120,132"
+        android:strokeColor="#FF3B3340"
+        android:strokeWidth="7"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+</vector>

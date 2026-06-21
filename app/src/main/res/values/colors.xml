@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Window background used for the brief frame before Compose draws (light). -->
+    <color name="app_background">#FFF6F5FB</color>
+    <!-- Calm deep-twilight splash + adaptive-icon background. -->
+    <color name="splash_background">#FF141221</color>
+    <color name="ic_launcher_background">#FF141221</color>
+</resources>
