@@ -61,12 +61,16 @@ jobs:
           fi
           # Strip ALL whitespace (handles copy-paste line wraps / CRLF), then decode tolerantly.
           printf '%s' "$KEYSTORE_BASE64" | tr -d '[:space:]' | base64 -d > "$RUNNER_TEMP/release.keystore" 2>/dev/null || true
-          if [ -s "$RUNNER_TEMP/release.keystore" ] && \
-             keytool -list -keystore "$RUNNER_TEMP/release.keystore" -storepass "$KEYSTORE_PASSWORD" >/dev/null 2>&1; then
-            echo "Keystore decoded and verified OK."
+          bytes=$(wc -c < "$RUNNER_TEMP/release.keystore" 2>/dev/null | tr -d ' ' || echo 0)
+          echo "Decoded keystore size: ${bytes:-0} bytes."
+          if [ "${bytes:-0}" -lt 100 ]; then
+            echo "::warning::KEYSTORE_BASE64 did NOT decode to a real keystore (${bytes:-0} bytes) — the secret isn't clean base64. Re-encode on Windows: [Convert]::ToBase64String([IO.File]::ReadAllBytes('C:\\path\\to\\release.keystore')) | Set-Clipboard"
+            echo "signed=false" >> "$GITHUB_OUTPUT"
+          elif keytool -list -keystore "$RUNNER_TEMP/release.keystore" -storepass "$KEYSTORE_PASSWORD" >/dev/null 2>&1; then
+            echo "Keystore decoded (${bytes} bytes) and opened OK — building a SIGNED release."
             echo "signed=true" >> "$GITHUB_OUTPUT"
           else
-            echo "::warning::KEYSTORE_BASE64 is not a valid keystore (or KEYSTORE_PASSWORD is wrong). Building a debug APK fallback. Re-encode with the PowerShell command in this file's header."
+            echo "::warning::Keystore decoded fine (${bytes} bytes) but could NOT be opened — KEYSTORE_PASSWORD is wrong for this keystore. Building a debug APK fallback."
             echo "signed=false" >> "$GITHUB_OUTPUT"
           fi
 
