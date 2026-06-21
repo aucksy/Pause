@@ -22,10 +22,12 @@ val signingValue: (String, String) -> String? = { propKey, envKey ->
     (keystoreProperties.getProperty(propKey) ?: System.getenv(envKey))?.takeIf { it.isNotBlank() }
 }
 val releaseStoreFilePath: String? = signingValue("storeFile", "KEYSTORE_FILE")
-val hasReleaseSigning: Boolean = releaseStoreFilePath != null &&
-    signingValue("storePassword", "KEYSTORE_PASSWORD") != null &&
-    signingValue("keyAlias", "KEY_ALIAS") != null &&
-    signingValue("keyPassword", "KEY_PASSWORD") != null
+val releaseStorePassword: String? = signingValue("storePassword", "KEYSTORE_PASSWORD")
+// Alias + key password are optional: default the alias to "pause" and the key password to the
+// store password, so a signed build only needs the keystore file + store password configured.
+val releaseKeyAlias: String = signingValue("keyAlias", "KEY_ALIAS") ?: "pause"
+val releaseKeyPassword: String? = signingValue("keyPassword", "KEY_PASSWORD") ?: releaseStorePassword
+val hasReleaseSigning: Boolean = releaseStoreFilePath != null && releaseStorePassword != null
 
 android {
     namespace = "com.pause.app"
@@ -35,8 +37,8 @@ android {
         applicationId = "com.pause.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 2
-        versionName = "1.0.1"
+        versionCode = 3
+        versionName = "1.0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }
@@ -46,9 +48,9 @@ android {
         if (hasReleaseSigning) {
             create("release") {
                 storeFile = file(releaseStoreFilePath!!)
-                storePassword = signingValue("storePassword", "KEYSTORE_PASSWORD")
-                keyAlias = signingValue("keyAlias", "KEY_ALIAS")
-                keyPassword = signingValue("keyPassword", "KEY_PASSWORD")
+                storePassword = releaseStorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
                 // v1+v2 keeps compatibility across all supported API levels.
                 enableV1Signing = true
                 enableV2Signing = true
