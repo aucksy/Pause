@@ -16,4 +16,13 @@ interface SettingsRepository {
     suspend fun setEnabled(enabled: Boolean)
 
     suspend fun setOnboardingComplete(complete: Boolean)
+
+    /** Persist the path to the resized custom overlay image, or null to clear it. */
+    suspend fun setCustomImagePath(path: String?)
+
+    suspend fun setOverlayMessage(message: String)
+
+    suspend fun setShowImage(show: Boolean)
+
+    suspend fun setShowText(show: Boolean)
 }

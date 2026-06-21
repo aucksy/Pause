@@ -8,6 +8,14 @@ data class PauseSettings(
     val intervalMinutes: Int,
     val isEnabled: Boolean,
     val onboardingComplete: Boolean,
+    /** Absolute path to the user's resized custom overlay image, or null to use the default character. */
+    val customImagePath: String? = null,
+    /** The message shown on the overlay (a preset or the user's own). May be blank. */
+    val overlayMessage: String = MessagePresets.default,
+    /** Whether the overlay shows the character / custom image. */
+    val showImage: Boolean = true,
+    /** Whether the overlay shows the text (the message + session caption). */
+    val showText: Boolean = true,
 ) {
     /** Monitoring can only actually do anything when it's on AND at least one app is chosen. */
     val isActivelyMonitoring: Boolean get() = isEnabled && selectedPackages.isNotEmpty()
@@ -18,6 +26,10 @@ data class PauseSettings(
             intervalMinutes = Constants.DEFAULT_INTERVAL_MINUTES,
             isEnabled = false,
             onboardingComplete = false,
+            customImagePath = null,
+            overlayMessage = MessagePresets.default,
+            showImage = true,
+            showText = true,
         )
     }
 }

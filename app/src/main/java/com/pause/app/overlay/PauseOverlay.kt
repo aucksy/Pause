@@ -1,5 +1,6 @@
 package com.pause.app.overlay
 
+import android.graphics.BitmapFactory
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
@@ -32,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -42,25 +44,31 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.pause.app.R
 import com.pause.app.core.Constants
+import com.pause.app.ui.components.CutoutText
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.math.ceil
 
 /**
- * The interruption itself. A full-screen, dimmed + blurred scrim with the (placeholder)
- * character cutout floating in front of whatever the user was scrolling, the session line,
- * and a Continue button that only arms after a short, calming countdown.
+ * The interruption itself. A full-screen, dimmed + blurred scrim with (optionally) a floating
+ * image — the default character or the user's own cutout — and (optionally) a sticker-styled
+ * message + session caption, plus a Continue button that only arms after a short countdown.
  *
  * Owns its own enter/exit animation; when the exit finishes it calls [onFinished], which the
  * [OverlayController] uses to remove the window and re-arm the next interval.
@@ -69,6 +77,10 @@ import kotlin.math.ceil
 fun PauseOverlay(
     appLabel: String,
     intervalMinutes: Int,
+    message: String,
+    showImage: Boolean,
+    showText: Boolean,
+    customImagePath: String?,
     onFinished: () -> Unit,
 ) {
     var visible by remember { mutableStateOf(false) }
@@ -96,6 +108,19 @@ fun PauseOverlay(
         },
         label = "contentScale",
     )
+
+    // Never render an empty overlay: if the image is hidden, force the text on.
+    val renderImage = showImage
+    val renderText = showText || !showImage
+
+    // Decode the user's custom image off the main thread; fall back to the default until/if it loads.
+    val customBitmap by produceState<ImageBitmap?>(initialValue = null, customImagePath) {
+        value = customImagePath?.let { path ->
+            withContext(Dispatchers.IO) {
+                runCatching { BitmapFactory.decodeFile(path)?.asImageBitmap() }.getOrNull()
+            }
+        }
+    }
 
     fun beginDismiss() {
         if (dismissing) return
@@ -134,45 +159,58 @@ fun PauseOverlay(
                 },
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            // Soft glow + floating character cutout (no rectangle behind it).
-            Box(
-                modifier = Modifier.size(248.dp),
-                contentAlignment = Alignment.Center,
-            ) {
+            if (renderImage) {
                 Box(
-                    modifier = Modifier
-                        .matchParentSize()
-                        .background(
-                            Brush.radialGradient(
-                                colors = listOf(
-                                    Color(0xFFA395FF).copy(alpha = 0.30f),
-                                    Color.Transparent,
+                    modifier = Modifier.size(248.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .background(
+                                Brush.radialGradient(
+                                    colors = listOf(
+                                        Color(0xFFA395FF).copy(alpha = 0.30f),
+                                        Color.Transparent,
+                                    ),
                                 ),
                             ),
-                        ),
-                )
-                Image(
-                    painter = painterResource(R.drawable.ic_pause_character),
-                    contentDescription = null,
-                    modifier = Modifier.size(208.dp),
-                )
+                    )
+                    val bitmap = customBitmap
+                    if (bitmap != null) {
+                        Image(
+                            bitmap = bitmap,
+                            contentDescription = null,
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier.size(216.dp),
+                        )
+                    } else {
+                        Image(
+                            painter = painterResource(R.drawable.ic_pause_character),
+                            contentDescription = null,
+                            modifier = Modifier.size(208.dp),
+                        )
+                    }
+                }
+                if (renderText) Spacer(Modifier.height(24.dp))
             }
 
-            Spacer(Modifier.height(26.dp))
-
-            Text(
-                text = "You've been scrolling for ${formatMinutes(intervalMinutes)}.",
-                style = MaterialTheme.typography.headlineMedium,
-                color = Color.White,
-                textAlign = TextAlign.Center,
-            )
-            Spacer(Modifier.height(10.dp))
-            Text(
-                text = "$appLabel — take a breath. Still want to keep going?",
-                style = MaterialTheme.typography.bodyLarge,
-                color = Color.White.copy(alpha = 0.74f),
-                textAlign = TextAlign.Center,
-            )
+            if (renderText) {
+                if (message.isNotBlank()) {
+                    CutoutText(
+                        text = message,
+                        style = MaterialTheme.typography.headlineMedium,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    Spacer(Modifier.height(12.dp))
+                }
+                Text(
+                    text = "${formatMinutes(intervalMinutes)} on $appLabel",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Color.White.copy(alpha = 0.74f),
+                    textAlign = TextAlign.Center,
+                )
+            }
 
             Spacer(Modifier.height(40.dp))
 

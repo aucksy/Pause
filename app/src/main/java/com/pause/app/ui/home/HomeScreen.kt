@@ -42,6 +42,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.pause.app.core.PausePermissions
@@ -58,7 +59,10 @@ import com.pause.app.ui.permissions.rememberSystemPermissions
 private val AmberAccent = Color(0xFFE0A458)
 
 @Composable
-fun HomeScreen(viewModel: AppViewModel) {
+fun HomeScreen(
+    viewModel: AppViewModel,
+    onOpenCustomize: () -> Unit,
+) {
     val settings by viewModel.settings.collectAsStateWithLifecycle()
     val permissions = rememberSystemPermissions()
     val context = LocalContext.current
@@ -131,6 +135,15 @@ fun HomeScreen(viewModel: AppViewModel) {
             IntervalCard(
                 intervalMinutes = settings.intervalMinutes,
                 onClick = { showIntervalPicker = true },
+            )
+
+            Spacer(Modifier.height(14.dp))
+            ReminderCard(
+                message = settings.overlayMessage,
+                showImage = settings.showImage,
+                showText = settings.showText,
+                hasCustomImage = settings.customImagePath != null,
+                onClick = onOpenCustomize,
             )
 
             Spacer(Modifier.height(28.dp))
@@ -309,6 +322,45 @@ private fun IntervalCard(intervalMinutes: Int, onClick: () -> Unit) {
                     "Every $intervalMinutes minutes",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Spacer(Modifier.width(12.dp))
+            Icon(Icons.Rounded.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
+}
+
+@Composable
+private fun ReminderCard(
+    message: String,
+    showImage: Boolean,
+    showText: Boolean,
+    hasCustomImage: Boolean,
+    onClick: () -> Unit,
+) {
+    val parts = buildList {
+        if (showImage) add(if (hasCustomImage) "Custom image" else "Character")
+        if (showText && message.isNotBlank()) add("“$message”")
+    }
+    val summary = if (parts.isEmpty()) "Tap to customize" else parts.joinToString("  ·  ")
+
+    PauseCard(Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onClick)
+                .padding(20.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text("Reminder style", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    summary,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
             Spacer(Modifier.width(12.dp))

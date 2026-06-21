@@ -167,9 +167,14 @@ class PauseAccessibilityService : AccessibilityService() {
         // Don't latch the flag if we can't actually draw (e.g. overlay permission was revoked).
         if (!Settings.canDrawOverlays(this)) return
         overlayShowing = true
+        val current = settings
         overlayController.show(
             appLabel = AppCatalog.labelFor(pkg),
-            intervalMinutes = settings.intervalMinutes,
+            intervalMinutes = current.intervalMinutes,
+            message = current.overlayMessage,
+            showImage = current.showImage,
+            showText = current.showText,
+            customImagePath = current.customImagePath,
             onContinue = {
                 overlayShowing = false
                 // Keep gently re-interrupting for as long as the user stays in the app.

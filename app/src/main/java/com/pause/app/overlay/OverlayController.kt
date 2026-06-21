@@ -42,6 +42,10 @@ class OverlayController @Inject constructor(
     fun show(
         appLabel: String,
         intervalMinutes: Int,
+        message: String,
+        showImage: Boolean,
+        showText: Boolean,
+        customImagePath: String?,
         onContinue: () -> Unit,
         onShowFailed: () -> Unit = {},
     ) {
@@ -67,6 +71,10 @@ class OverlayController @Inject constructor(
                         PauseOverlay(
                             appLabel = appLabel,
                             intervalMinutes = intervalMinutes,
+                            message = message,
+                            showImage = showImage,
+                            showText = showText,
+                            customImagePath = customImagePath,
                             onFinished = {
                                 removeCurrent()
                                 onContinue()

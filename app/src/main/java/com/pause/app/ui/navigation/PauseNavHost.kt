@@ -5,12 +5,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.pause.app.ui.AppViewModel
+import com.pause.app.ui.customize.CustomizeScreen
 import com.pause.app.ui.home.HomeScreen
 import com.pause.app.ui.onboarding.OnboardingScreen
 
 private object Routes {
     const val ONBOARDING = "onboarding"
     const val HOME = "home"
+    const val CUSTOMIZE = "customize"
 }
 
 @Composable
@@ -34,7 +36,16 @@ fun PauseNavHost(
             )
         }
         composable(Routes.HOME) {
-            HomeScreen(viewModel = viewModel)
+            HomeScreen(
+                viewModel = viewModel,
+                onOpenCustomize = { navController.navigate(Routes.CUSTOMIZE) },
+            )
+        }
+        composable(Routes.CUSTOMIZE) {
+            CustomizeScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() },
+            )
         }
     }
 }

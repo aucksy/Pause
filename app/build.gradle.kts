@@ -40,8 +40,8 @@ android {
         applicationId = "com.pause.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 4
-        versionName = "1.0.3"
+        versionCode = 5
+        versionName = "1.0.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }
@@ -141,6 +141,9 @@ dependencies {
 
     // DataStore
     implementation(libs.androidx.datastore.preferences)
+
+    // Image EXIF orientation for user-picked images
+    implementation(libs.androidx.exifinterface)
 
     // Unit testing
     testImplementation(libs.junit)

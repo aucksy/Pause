@@ -6,8 +6,10 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import com.pause.app.domain.model.IntervalOptions
+import com.pause.app.domain.model.MessagePresets
 import com.pause.app.domain.model.PauseSettings
 import com.pause.app.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.Flow
@@ -28,6 +30,10 @@ class SettingsRepositoryImpl @Inject constructor(
         val INTERVAL = intPreferencesKey("interval_minutes")
         val ENABLED = booleanPreferencesKey("is_enabled")
         val ONBOARDING = booleanPreferencesKey("onboarding_complete")
+        val CUSTOM_IMAGE = stringPreferencesKey("custom_image_path")
+        val OVERLAY_MESSAGE = stringPreferencesKey("overlay_message")
+        val SHOW_IMAGE = booleanPreferencesKey("show_image")
+        val SHOW_TEXT = booleanPreferencesKey("show_text")
     }
 
     override val settings: Flow<PauseSettings> = dataStore.data
@@ -40,6 +46,10 @@ class SettingsRepositoryImpl @Inject constructor(
             intervalMinutes = IntervalOptions.sanitize(p[Keys.INTERVAL] ?: IntervalOptions.DEFAULT),
             isEnabled = p[Keys.ENABLED] ?: false,
             onboardingComplete = p[Keys.ONBOARDING] ?: false,
+            customImagePath = p[Keys.CUSTOM_IMAGE],
+            overlayMessage = p[Keys.OVERLAY_MESSAGE] ?: MessagePresets.default,
+            showImage = p[Keys.SHOW_IMAGE] ?: true,
+            showText = p[Keys.SHOW_TEXT] ?: true,
         )
     }
 
@@ -59,5 +69,23 @@ class SettingsRepositoryImpl @Inject constructor(
 
     override suspend fun setOnboardingComplete(complete: Boolean) {
         dataStore.edit { it[Keys.ONBOARDING] = complete }
+    }
+
+    override suspend fun setCustomImagePath(path: String?) {
+        dataStore.edit {
+            if (path == null) it.remove(Keys.CUSTOM_IMAGE) else it[Keys.CUSTOM_IMAGE] = path
+        }
+    }
+
+    override suspend fun setOverlayMessage(message: String) {
+        dataStore.edit { it[Keys.OVERLAY_MESSAGE] = MessagePresets.clamp(message) }
+    }
+
+    override suspend fun setShowImage(show: Boolean) {
+        dataStore.edit { it[Keys.SHOW_IMAGE] = show }
+    }
+
+    override suspend fun setShowText(show: Boolean) {
+        dataStore.edit { it[Keys.SHOW_TEXT] = show }
     }
 }

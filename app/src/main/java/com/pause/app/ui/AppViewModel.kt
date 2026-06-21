@@ -1,7 +1,9 @@
 package com.pause.app.ui
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.pause.app.data.system.CustomImageStore
 import com.pause.app.domain.model.PauseSettings
 import com.pause.app.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,10 +23,19 @@ import javax.inject.Inject
 @HiltViewModel
 class AppViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
+    private val customImageStore: CustomImageStore,
 ) : ViewModel() {
 
     val settings: StateFlow<PauseSettings> = settingsRepository.settings
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), PauseSettings.DEFAULT)
+
+    private val _imageProcessing = MutableStateFlow(false)
+    /** True while a picked image is being resized/saved, so the UI can show progress. */
+    val imageProcessing: StateFlow<Boolean> = _imageProcessing.asStateFlow()
+
+    private val _imageError = MutableStateFlow(false)
+    /** Set when the last image import failed; the UI clears it once shown. */
+    val imageError: StateFlow<Boolean> = _imageError.asStateFlow()
 
     private val _startOnHome = MutableStateFlow<Boolean?>(null)
     /**
@@ -36,7 +47,14 @@ class AppViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            _startOnHome.value = settingsRepository.snapshot().onboardingComplete
+            val first = settingsRepository.snapshot()
+            // Heal a stored image path whose file no longer exists (e.g. after a backup restore),
+            // so the UI doesn't claim a custom image while the overlay shows the default.
+            val path = first.customImagePath
+            if (path != null && !customImageStore.exists(path)) {
+                settingsRepository.setCustomImagePath(null)
+            }
+            _startOnHome.value = first.onboardingComplete
         }
     }
 
@@ -61,5 +79,35 @@ class AppViewModel @Inject constructor(
     fun completeOnboarding() = viewModelScope.launch {
         settingsRepository.setOnboardingComplete(true)
         settingsRepository.setEnabled(true)
+    }
+
+    fun setCustomImage(uri: Uri) = viewModelScope.launch {
+        _imageError.value = false
+        _imageProcessing.value = true
+        val path = customImageStore.save(uri)
+        if (path != null) settingsRepository.setCustomImagePath(path) else _imageError.value = true
+        _imageProcessing.value = false
+    }
+
+    fun clearCustomImage() = viewModelScope.launch {
+        // Clear the reference first so the overlay stops pointing at the file before it's deleted.
+        settingsRepository.setCustomImagePath(null)
+        customImageStore.delete()
+    }
+
+    fun consumeImageError() {
+        _imageError.value = false
+    }
+
+    fun setOverlayMessage(message: String) = viewModelScope.launch {
+        settingsRepository.setOverlayMessage(message)
+    }
+
+    fun setShowImage(show: Boolean) = viewModelScope.launch {
+        settingsRepository.setShowImage(show)
+    }
+
+    fun setShowText(show: Boolean) = viewModelScope.launch {
+        settingsRepository.setShowText(show)
     }
 }
