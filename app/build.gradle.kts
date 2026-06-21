@@ -23,10 +23,13 @@ val signingValue: (String, String) -> String? = { propKey, envKey ->
 }
 val releaseStoreFilePath: String? = signingValue("storeFile", "KEYSTORE_FILE")
 val releaseStorePassword: String? = signingValue("storePassword", "KEYSTORE_PASSWORD")
-// Alias + key password are optional: default the alias to "pause" and the key password to the
-// store password, so a signed build only needs the keystore file + store password configured.
-val releaseKeyAlias: String = signingValue("keyAlias", "KEY_ALIAS") ?: "pause"
-val releaseKeyPassword: String? = signingValue("keyPassword", "KEY_PASSWORD") ?: releaseStorePassword
+// Alias + key password are read ONLY from a local keystore.properties (never from CI env), and
+// otherwise follow the project keystore's convention: alias "pause", key password == store
+// password. This keeps CI signing dependent on just KEYSTORE_BASE64 + KEYSTORE_PASSWORD and
+// immune to any stale/incorrect KEY_ALIAS / KEY_PASSWORD repository secrets.
+val keystorePropOnly: (String) -> String? = { key -> keystoreProperties.getProperty(key)?.takeIf { it.isNotBlank() } }
+val releaseKeyAlias: String = keystorePropOnly("keyAlias") ?: "pause"
+val releaseKeyPassword: String? = keystorePropOnly("keyPassword") ?: releaseStorePassword
 val hasReleaseSigning: Boolean = releaseStoreFilePath != null && releaseStorePassword != null
 
 android {
@@ -37,8 +40,8 @@ android {
         applicationId = "com.pause.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 3
-        versionName = "1.0.2"
+        versionCode = 4
+        versionName = "1.0.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }
@@ -64,8 +67,11 @@ android {
             versionNameSuffix = "-debug"
         }
         release {
-            isMinifyEnabled = true
-            isShrinkResources = true
+            // R8/resource shrinking is off for now: tuning its keep rules needs a local build
+            // toolchain, but this project builds only in CI. The release APK is still fully signed
+            // and shippable; minification can be re-enabled later once the rules are verified.
+            isMinifyEnabled = false
+            isShrinkResources = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
