@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -56,6 +57,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.pause.app.R
+import com.pause.app.domain.model.AppCatalog
 import com.pause.app.domain.model.MessagePresets
 import com.pause.app.ui.AppViewModel
 import com.pause.app.ui.components.CutoutText
@@ -112,7 +114,7 @@ fun CustomizeScreen(
                 ),
             ),
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize().systemBarsPadding()) {
             // Top bar
             Row(
                 modifier = Modifier
@@ -140,12 +142,29 @@ fun CustomizeScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Spacer(Modifier.height(12.dp))
+                val previewApp = settings.selectedPackages.firstOrNull()
+                    ?.let { AppCatalog.definitionFor(it)?.label } ?: "Instagram"
+                val previewMinutes = if (settings.intervalMinutes == 1) "1 minute" else "${settings.intervalMinutes} minutes"
                 ReminderPreview(
                     message = messageText,
+                    caption = "$previewMinutes on $previewApp",
                     showImage = settings.showImage,
                     showText = settings.showText,
                     customBitmap = customBitmap,
                 )
+
+                Spacer(Modifier.height(12.dp))
+                TextButton(
+                    onClick = {
+                        viewModel.resetToDefaults()
+                        messageText = MessagePresets.default
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Icon(Icons.Rounded.Refresh, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text("Reset to default")
+                }
 
                 Spacer(Modifier.height(20.dp))
                 SectionLabel("What appears")
@@ -267,19 +286,6 @@ fun CustomizeScreen(
                     }
                 }
 
-                Spacer(Modifier.height(20.dp))
-                TextButton(
-                    onClick = {
-                        viewModel.resetToDefaults()
-                        messageText = MessagePresets.default
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Icon(Icons.Rounded.Refresh, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(8.dp))
-                    Text("Reset to default")
-                }
-
                 Spacer(Modifier.height(40.dp))
             }
         }
@@ -289,6 +295,7 @@ fun CustomizeScreen(
 @Composable
 private fun ReminderPreview(
     message: String,
+    caption: String,
     showImage: Boolean,
     showText: Boolean,
     customBitmap: ImageBitmap?,
@@ -337,7 +344,7 @@ private fun ReminderPreview(
                 }
                 // Mirror the overlay, which always shows this caption when text is on.
                 Text(
-                    text = "5 minutes on Instagram",
+                    text = caption,
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.White.copy(alpha = 0.74f),
                     textAlign = TextAlign.Center,
