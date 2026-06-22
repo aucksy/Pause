@@ -14,12 +14,25 @@ class IntervalOptionsTest {
     }
 
     @Test
-    fun `arbitrary value snaps to the nearest option`() {
-        assertThat(IntervalOptions.sanitize(6)).isEqualTo(5)
-        assertThat(IntervalOptions.sanitize(8)).isEqualTo(10)
-        assertThat(IntervalOptions.sanitize(13)).isEqualTo(15)
-        assertThat(IntervalOptions.sanitize(99)).isEqualTo(30)
-        assertThat(IntervalOptions.sanitize(0)).isEqualTo(5)
+    fun `in-range custom values are kept, not snapped`() {
+        // Custom minutes inside the range must survive unchanged (no snapping to a preset).
+        assertThat(IntervalOptions.sanitize(6)).isEqualTo(6)
+        assertThat(IntervalOptions.sanitize(7)).isEqualTo(7)
+        assertThat(IntervalOptions.sanitize(13)).isEqualTo(13)
+        assertThat(IntervalOptions.sanitize(99)).isEqualTo(99)
+    }
+
+    @Test
+    fun `out-of-range values clamp to the supported bounds`() {
+        assertThat(IntervalOptions.sanitize(0)).isEqualTo(IntervalOptions.MIN_MINUTES)
+        assertThat(IntervalOptions.sanitize(-5)).isEqualTo(IntervalOptions.MIN_MINUTES)
+        assertThat(IntervalOptions.sanitize(1000)).isEqualTo(IntervalOptions.MAX_MINUTES)
+    }
+
+    @Test
+    fun `isPreset distinguishes presets from custom values`() {
+        assertThat(IntervalOptions.isPreset(15)).isTrue()
+        assertThat(IntervalOptions.isPreset(7)).isFalse()
     }
 
     @Test
