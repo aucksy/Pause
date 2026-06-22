@@ -92,10 +92,12 @@ jobs:
 
       - name: Collect outputs
         run: |
+          # Name the artifacts after the app + tag, e.g. Pause-v1.0.7.apk (not app-release.apk).
+          NAME="Pause-${{ github.ref_name }}"
           mkdir -p dist
-          cp app/build/outputs/apk/release/*.apk dist/ 2>/dev/null || true
-          cp app/build/outputs/bundle/release/*.aab dist/ 2>/dev/null || true
-          cp app/build/outputs/apk/debug/*.apk   dist/ 2>/dev/null || true
+          for f in app/build/outputs/apk/release/*.apk;    do [ -f "$f" ] && cp "$f" "dist/${NAME}.apk"; done
+          for f in app/build/outputs/bundle/release/*.aab; do [ -f "$f" ] && cp "$f" "dist/${NAME}.aab"; done
+          for f in app/build/outputs/apk/debug/*.apk;      do [ -f "$f" ] && cp "$f" "dist/${NAME}-debug.apk"; done
           echo "Artifacts to publish:"; ls -la dist
 
       - name: Publish GitHub Release

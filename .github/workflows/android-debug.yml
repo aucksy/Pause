@@ -42,9 +42,14 @@ jobs:
       - name: Build debug APK
         run: ./gradlew assembleDebug --no-daemon --stacktrace
 
+      - name: Rename APK
+        run: |
+          mkdir -p dist
+          for f in app/build/outputs/apk/debug/*.apk; do [ -f "$f" ] && cp "$f" "dist/Pause-debug.apk"; done
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: pause-debug-apk
-          path: app/build/outputs/apk/debug/*.apk
+          name: Pause-debug-apk
+          path: dist/Pause-debug.apk
           if-no-files-found: error
