@@ -411,7 +411,8 @@ private fun AppPickerContent(selected: Set<String>, onToggle: (String) -> Unit) 
 @Composable
 private fun IntervalPickerContent(selected: Int, onSelect: (Int) -> Unit) {
     val isCustom = !IntervalOptions.isPreset(selected)
-    var customText by remember { mutableStateOf(if (isCustom) selected.toString() else "") }
+    // Keyed on `selected` so the prefill refreshes if the stored interval changes while open.
+    var customText by remember(selected) { mutableStateOf(if (isCustom) selected.toString() else "") }
     val customValue = customText.toIntOrNull()
     val customValid = customValue != null && customValue in IntervalOptions.MIN_MINUTES..IntervalOptions.MAX_MINUTES
 

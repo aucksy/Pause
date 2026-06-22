@@ -74,6 +74,12 @@ fun CustomizeScreen(
 
     // Local message state so the text field never lags behind DataStore writes.
     var messageText by remember { mutableStateOf(settings.overlayMessage) }
+    // Re-sync when the persisted message arrives/changes externally (cold entry before the real
+    // value propagated, or a Reset). Compare trimmed so it never eats a space being typed (the
+    // user's own edits round-trip to the same trimmed string, making this a no-op for them).
+    LaunchedEffect(settings.overlayMessage) {
+        if (settings.overlayMessage != messageText.trim()) messageText = settings.overlayMessage
+    }
 
     val customBitmap by produceState<ImageBitmap?>(initialValue = null, settings.customImagePath) {
         value = settings.customImagePath?.let { path ->
