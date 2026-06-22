@@ -48,7 +48,7 @@ import com.pause.app.domain.model.AppCatalog
 import com.pause.app.domain.model.AppDefinition
 import com.pause.app.domain.model.IntervalOptions
 import com.pause.app.ui.AppViewModel
-import com.pause.app.ui.components.AppMonogram
+import com.pause.app.ui.components.AppIcon
 import com.pause.app.ui.components.PauseCard
 import com.pause.app.ui.permissions.rememberSystemPermissions
 
@@ -230,7 +230,7 @@ private fun AppSelectRow(definition: AppDefinition, selected: Boolean, onClick: 
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        AppMonogram(definition = definition, size = 44.dp)
+        AppIcon(definition = definition, size = 44.dp)
         Spacer(Modifier.width(14.dp))
         Text(
             definition.label,

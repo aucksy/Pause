@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pause.app.data.system.CustomImageStore
+import com.pause.app.domain.model.MessagePresets
 import com.pause.app.domain.model.PauseSettings
 import com.pause.app.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -109,5 +110,14 @@ class AppViewModel @Inject constructor(
 
     fun setShowText(show: Boolean) = viewModelScope.launch {
         settingsRepository.setShowText(show)
+    }
+
+    /** Restore the interruption style to its defaults: bundled character, default message, both shown. */
+    fun resetToDefaults() = viewModelScope.launch {
+        settingsRepository.setCustomImagePath(null)
+        customImageStore.delete()
+        settingsRepository.setOverlayMessage(MessagePresets.default)
+        settingsRepository.setShowImage(true)
+        settingsRepository.setShowText(true)
     }
 }

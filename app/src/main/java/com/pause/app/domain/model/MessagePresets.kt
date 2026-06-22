@@ -11,6 +11,7 @@ object MessagePresets {
     const val MAX_MESSAGE_LENGTH = 80
 
     val messages: List<String> = listOf(
+        "Doom scrolling Again 😏",
         "🥱 Still scrolling?",
         "👀 Caught in the loop",
         "🧠 Your brain wants a break",
@@ -23,6 +24,7 @@ object MessagePresets {
         "💤 Doomscroll detected.",
     )
 
+    /** The out-of-the-box message (also the value "Reset to default" restores). */
     val default: String = messages.first()
 
     /** Trim a candidate message to the limit without splitting a surrogate pair (emoji). */

@@ -26,6 +26,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Image
+import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -118,7 +119,7 @@ fun CustomizeScreen(
                     Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Back")
                 }
                 Spacer(Modifier.width(4.dp))
-                Text("Reminder style", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onBackground)
+                Text("Interruption style", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onBackground)
             }
 
             Column(
@@ -258,6 +259,19 @@ fun CustomizeScreen(
                             )
                         }
                     }
+                }
+
+                Spacer(Modifier.height(20.dp))
+                TextButton(
+                    onClick = {
+                        viewModel.resetToDefaults()
+                        messageText = MessagePresets.default
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Icon(Icons.Rounded.Refresh, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text("Reset to default")
                 }
 
                 Spacer(Modifier.height(40.dp))

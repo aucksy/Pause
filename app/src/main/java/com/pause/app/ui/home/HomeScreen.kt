@@ -19,14 +19,17 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.LockOpen
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -41,6 +44,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -51,7 +56,7 @@ import com.pause.app.domain.model.IntervalOptions
 import com.pause.app.domain.model.MonitoringStatus
 import com.pause.app.domain.model.PauseSettings
 import com.pause.app.ui.AppViewModel
-import com.pause.app.ui.components.AppMonogram
+import com.pause.app.ui.components.AppIcon
 import com.pause.app.ui.components.PauseCard
 import com.pause.app.ui.permissions.SystemPermissions
 import com.pause.app.ui.permissions.rememberSystemPermissions
@@ -294,7 +299,7 @@ private fun SelectedAppsCard(selected: Set<String>, onClick: () -> Unit) {
                 } else {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         AppCatalog.apps.filter { it.packageName in selected }.take(6).forEach { app ->
-                            AppMonogram(definition = app, size = 36.dp)
+                            AppIcon(definition = app, size = 36.dp)
                         }
                     }
                 }
@@ -353,7 +358,7 @@ private fun ReminderCard(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(Modifier.weight(1f)) {
-                Text("Reminder style", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+                Text("Interruption style", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
                 Spacer(Modifier.height(6.dp))
                 Text(
                     summary,
@@ -393,7 +398,7 @@ private fun AppPickerContent(selected: Set<String>, onToggle: (String) -> Unit) 
                     .padding(vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                AppMonogram(definition = app, size = 40.dp)
+                AppIcon(definition = app, size = 40.dp)
                 Spacer(Modifier.width(14.dp))
                 Text(app.label, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
                 CheckCircle(selected = app.packageName in selected)
@@ -405,6 +410,11 @@ private fun AppPickerContent(selected: Set<String>, onToggle: (String) -> Unit) 
 
 @Composable
 private fun IntervalPickerContent(selected: Int, onSelect: (Int) -> Unit) {
+    val isCustom = !IntervalOptions.isPreset(selected)
+    var customText by remember { mutableStateOf(if (isCustom) selected.toString() else "") }
+    val customValue = customText.toIntOrNull()
+    val customValid = customValue != null && customValue in IntervalOptions.MIN_MINUTES..IntervalOptions.MAX_MINUTES
+
     Column(
         Modifier
             .fillMaxWidth()
@@ -425,6 +435,38 @@ private fun IntervalPickerContent(selected: Int, onSelect: (Int) -> Unit) {
                 CheckCircle(selected = minutes == selected)
             }
         }
+
+        Spacer(Modifier.height(12.dp))
+        Text("Custom", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Spacer(Modifier.height(8.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            OutlinedTextField(
+                value = customText,
+                onValueChange = { customText = it.filter(Char::isDigit).take(3) },
+                modifier = Modifier.width(130.dp),
+                label = { Text("Minutes") },
+                singleLine = true,
+                isError = customText.isNotEmpty() && !customValid,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
+            )
+            Spacer(Modifier.width(12.dp))
+            Button(
+                onClick = { if (customValid) onSelect(customValue) },
+                enabled = customValid,
+            ) {
+                Text("Set")
+            }
+            if (isCustom) {
+                Spacer(Modifier.weight(1f))
+                CheckCircle(selected = true)
+            }
+        }
+        Spacer(Modifier.height(6.dp))
+        Text(
+            "${IntervalOptions.MIN_MINUTES}–${IntervalOptions.MAX_MINUTES} minutes",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
         Spacer(Modifier.height(16.dp))
     }
 }

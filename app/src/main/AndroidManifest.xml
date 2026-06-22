@@ -10,6 +10,21 @@
     -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
+    <!--
+      Make the catalogued apps visible (Android 11+ package visibility) so Pause can show their
+      real launcher icons in the picker. We do NOT request QUERY_ALL_PACKAGES — only these specific,
+      named packages are queryable, and Pause only ever reads their icon/label.
+    -->
+    <queries>
+        <package android:name="com.instagram.android" />
+        <package android:name="com.zhiliaoapp.musically" />
+        <package android:name="com.google.android.youtube" />
+        <package android:name="com.reddit.frontpage" />
+        <package android:name="com.twitter.android" />
+        <package android:name="com.facebook.katana" />
+        <package android:name="com.snapchat.android" />
+    </queries>
+
     <application
         android:name=".PauseApp"
         android:allowBackup="true"
