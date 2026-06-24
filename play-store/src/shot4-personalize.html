@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><style>
+  html,body{margin:0;padding:0}
+  *{box-sizing:border-box;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif}
+  #stage{position:relative;width:1080px;height:1920px;overflow:hidden;
+    background:linear-gradient(160deg,#6A5FD6 0%,#4B43A8 60%,#352E86 100%)}
+  .headline{position:absolute;top:96px;left:0;right:0;text-align:center;padding:0 80px}
+  .headline h2{margin:0;color:#fff;font-size:64px;font-weight:700;line-height:1.12;letter-spacing:-1px}
+  .phone{position:absolute;left:90px;right:90px;top:360px;bottom:-70px;border-radius:64px 64px 0 0;
+    background:linear-gradient(180deg,#F7F6FB 0%,#ECE8F8 100%);
+    box-shadow:0 40px 90px rgba(0,0,0,0.35);padding:72px 60px;overflow:hidden}
+  .h3{font-size:46px;font-weight:700;color:#1A1826;margin-bottom:34px}
+  .preview{border-radius:40px;padding:70px 50px;text-align:center;
+    background:radial-gradient(120% 90% at 50% 24%, #241F45 0%, #16141F 60%, #0E0D15 100%);
+    box-shadow:0 18px 50px rgba(26,24,38,0.18)}
+  .pmsg{color:#F3F1FF;font-size:52px;font-weight:700;line-height:1.2}
+  .pemoji{font-size:120px;line-height:1;margin-bottom:18px}
+  .pcap{color:#B8B2D9;font-size:30px;margin-top:24px}
+  .lbl{font-size:32px;color:#49475A;margin:46px 0 22px}
+  .chips{display:flex;flex-wrap:wrap;gap:20px}
+  .chip{background:#fff;border:2px solid #E3E0EC;border-radius:30px;padding:24px 34px;font-size:32px;color:#2C2A38}
+  .chip.on{background:#E7E3FF;border-color:#5C53C9;color:#170B5E;font-weight:600}
+</style></head>
+<body>
+<div id="stage">
+  <div class="headline"><h2>Make the reminder<br>yours</h2></div>
+  <div class="phone">
+    <div class="h3">Interruption style</div>
+    <div class="preview">
+      <div class="pemoji">&#129488;</div>
+      <div class="pmsg">Doom scrolling again?</div>
+      <div class="pcap">Your image &middot; your message</div>
+    </div>
+    <div class="lbl">Witty presets, or write your own</div>
+    <div class="chips">
+      <div class="chip on">Doom scrolling again? &#128529;</div>
+      <div class="chip">Touch grass?</div>
+      <div class="chip">Still here?</div>
+      <div class="chip">Enough for now &#127807;</div>
+    </div>
+  </div>
+</div>
+</body></html>

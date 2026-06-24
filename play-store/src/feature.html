@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><style>
+  html,body{margin:0;padding:0}
+  *{box-sizing:border-box;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif}
+  #stage{position:relative;width:1024px;height:500px;overflow:hidden;
+    background:radial-gradient(120% 140% at 18% 35%, #3A2F8F 0%, #221C4A 42%, #141221 78%);}
+  .bgbars{position:absolute;right:-60px;top:-40px;opacity:0.06}
+  .row{position:absolute;inset:0;display:flex;align-items:center;padding:0 84px;gap:64px}
+  .tile{width:248px;height:248px;border-radius:56px;flex:0 0 auto;
+    background:#141221;box-shadow:0 24px 60px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06);
+    display:flex;align-items:center;justify-content:center}
+  .txt{display:flex;flex-direction:column}
+  h1{margin:0;font-size:104px;font-weight:700;letter-spacing:-2px;color:#FFFFFF;line-height:1}
+  p{margin:18px 0 0;font-size:34px;font-weight:500;color:#C4BCFF;line-height:1.25;max-width:560px}
+  .dot{color:#7E74E8}
+</style></head>
+<body>
+<div id="stage">
+  <svg class="bgbars" width="520" height="520" viewBox="0 0 108 108" xmlns="http://www.w3.org/2000/svg">
+    <path d="M40,33h11a6,6 0 0 1 6,6v30a6,6 0 0 1 -6,6h-11a6,6 0 0 1 -6,-6v-30a6,6 0 0 1 6,-6z" fill="#C4BCFF"/>
+    <path d="M57,33h11a6,6 0 0 1 6,6v30a6,6 0 0 1 -6,6h-11a6,6 0 0 1 -6,-6v-30a6,6 0 0 1 6,-6z" fill="#C4BCFF"/>
+  </svg>
+  <div class="row">
+    <div class="tile">
+      <svg width="150" height="150" viewBox="0 0 108 108" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="b1" gradientUnits="userSpaceOnUse" x1="40" y1="33" x2="74" y2="75">
+            <stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#DDD6FF"/></linearGradient>
+          <linearGradient id="b2" gradientUnits="userSpaceOnUse" x1="51" y1="33" x2="80" y2="75">
+            <stop offset="0" stop-color="#EFE9FF"/><stop offset="1" stop-color="#BBAEF8"/></linearGradient>
+        </defs>
+        <path d="M40,33h11a6,6 0 0 1 6,6v30a6,6 0 0 1 -6,6h-11a6,6 0 0 1 -6,-6v-30a6,6 0 0 1 6,-6z" fill="url(#b1)"/>
+        <path d="M57,33h11a6,6 0 0 1 6,6v30a6,6 0 0 1 -6,6h-11a6,6 0 0 1 -6,-6v-30a6,6 0 0 1 6,-6z" fill="url(#b2)"/>
+      </svg>
+    </div>
+    <div class="txt">
+      <h1>Pause</h1>
+      <p>A gentle nudge to stop doom&#8209;scrolling<span class="dot">.</span></p>
+    </div>
+  </div>
+</div>
+</body></html>

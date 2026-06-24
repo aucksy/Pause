@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><style>
+  html,body{margin:0;padding:0}
+  #stage{width:512px;height:512px;overflow:hidden}
+</style></head>
+<body>
+<div id="stage">
+  <svg width="512" height="512" viewBox="0 0 108 108" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="glow" cx="50%" cy="44%" r="55%">
+        <stop offset="0%" stop-color="#3A2F8F" stop-opacity="0.85"/>
+        <stop offset="55%" stop-color="#221C4A" stop-opacity="0.55"/>
+        <stop offset="100%" stop-color="#141221" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="bar1" gradientUnits="userSpaceOnUse" x1="40" y1="33" x2="74" y2="75">
+        <stop offset="0" stop-color="#FFFFFF"/>
+        <stop offset="1" stop-color="#DDD6FF"/>
+      </linearGradient>
+      <linearGradient id="bar2" gradientUnits="userSpaceOnUse" x1="51" y1="33" x2="80" y2="75">
+        <stop offset="0" stop-color="#EFE9FF"/>
+        <stop offset="1" stop-color="#BBAEF8"/>
+      </linearGradient>
+    </defs>
+    <rect x="0" y="0" width="108" height="108" fill="#141221"/>
+    <rect x="0" y="0" width="108" height="108" fill="url(#glow)"/>
+    <path d="M40,33h11a6,6 0 0 1 6,6v30a6,6 0 0 1 -6,6h-11a6,6 0 0 1 -6,-6v-30a6,6 0 0 1 6,-6z" fill="url(#bar1)"/>
+    <path d="M57,33h11a6,6 0 0 1 6,6v30a6,6 0 0 1 -6,6h-11a6,6 0 0 1 -6,-6v-30a6,6 0 0 1 6,-6z" fill="url(#bar2)"/>
+  </svg>
+</div>
+</body></html>

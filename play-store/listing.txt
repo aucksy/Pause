@@ -1,0 +1,94 @@
+PAUSE — GOOGLE PLAY STORE LISTING (copy-paste fields)
+======================================================
+Package name : com.pause.app
+Default language : English (United States) — en-US
+App or game : App
+Free or paid : Free
+Category : Productivity   (alt: Health & Fitness)
+Tags (pick up to 5) : Productivity, Self-improvement, Digital wellbeing, Focus
+Contact email : aakashpahuja1990@gmail.com
+Website (optional) : https://github.com/aucksy/Pause
+Privacy policy URL : https://aucksy.github.io/Pause/privacy.html
+
+
+APP NAME (max 30 chars)
+-----------------------
+Pause
+
+
+SHORT DESCRIPTION (max 80 chars)
+--------------------------------
+Catch yourself mid-scroll. Pick apps, set a limit, get a calm reminder.
+
+
+FULL DESCRIPTION (max 4000 chars)
+---------------------------------
+Pause helps you take back control of your time.
+
+Choose the apps that tend to swallow your evenings — Instagram, TikTok, YouTube, Reddit, X, Facebook, Snapchat — set how many minutes is "too long," and Pause shows a calm, full-screen reminder when you cross it. A simple beat to ask yourself: do I really want to keep going?
+
+It is not a blocker and it is not about shame. It just interrupts the autopilot for a moment and hands the choice back to you.
+
+WHAT YOU CAN DO
+• Pick exactly which apps to watch — nothing else is ever touched.
+• Set your own time limit, including a custom number of minutes.
+• Personalise the reminder with your own image and message, or pick a witty preset.
+• Runs quietly in the background — no nagging notification to dismiss.
+
+PRIVATE BY DESIGN
+Pause is built to be trustworthy:
+• It reads only which app is in the foreground and for how long — never the contents of your screen, your messages, your keystrokes, or your passwords.
+• Everything happens on your device. There is no account, no login, no analytics, no ads, and no tracking.
+• Nothing Pause sees ever leaves your phone.
+
+HOW IT WORKS
+Pause uses Android's "Usage access" to notice when an app you chose has been open long enough, then draws a brief reminder over it. You grant two simple permissions during setup — Usage access and "Display over other apps" — and that's it.
+
+Interrupt the autopilot. Let yourself choose.
+
+
+=====================================================================
+GRAPHICS (all in this folder, already sized for Play)
+=====================================================================
+App icon (512 x 512, PNG)        -> icon-512.png
+Feature graphic (1024 x 500)     -> feature-graphic-1024x500.png
+Phone screenshots (1080 x 1920)  -> screenshot-1-home.png
+                                    screenshot-2-overlay.png
+                                    screenshot-3-private.png
+                                    screenshot-4-personalize.png
+App bundle to upload (.aab)      -> from the GitHub release:
+   https://github.com/aucksy/Pause/releases/download/v1.0.9/Pause-v1.0.9.aab
+
+
+=====================================================================
+DATA SAFETY FORM (App content -> Data safety)
+=====================================================================
+Does your app collect or share any of the required user data types?
+   -> NO.
+   (Play defines "collection" as data sent OFF the device. Pause sends nothing —
+    all detection is on-device — so there is no collection and no sharing.)
+Is all of the user data encrypted in transit?            -> Not applicable (no data leaves the device)
+Do you provide a way for users to request data deletion? -> Not applicable (no data collected)
+
+This must stay consistent with the privacy policy (docs/privacy.html).
+
+
+=====================================================================
+CONTENT RATING (App content -> Content rating questionnaire / IARC)
+=====================================================================
+Category : Utility, Productivity, Communication, or Other
+Answer "No" to all violence / sexual / language / controlled-substance / gambling questions.
+Expected result : Everyone / PEGI 3.
+
+
+=====================================================================
+APP CONTENT DECLARATIONS
+=====================================================================
+• Foreground service (special use): justify as —
+  "Detects the foreground app via Usage Access to interrupt long scrolling sessions;
+   no data leaves the device."
+• Ads : No, the app has no ads.
+• Target audience : 18+ (or 13+) — a general productivity tool, not directed at children.
+• Government app : No.  News app : No.
+• NO accessibility service is used, so no accessibility declaration applies.
+• Pause does not request notification permission, so on Android 13+ it runs with no notification.

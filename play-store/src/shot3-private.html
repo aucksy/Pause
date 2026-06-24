@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><style>
+  html,body{margin:0;padding:0}
+  *{box-sizing:border-box;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif}
+  #stage{position:relative;width:1080px;height:1920px;overflow:hidden;
+    background:linear-gradient(160deg,#6A5FD6 0%,#4B43A8 60%,#352E86 100%)}
+  .headline{position:absolute;top:96px;left:0;right:0;text-align:center;padding:0 80px}
+  .headline h2{margin:0;color:#fff;font-size:64px;font-weight:700;line-height:1.12;letter-spacing:-1px}
+  .phone{position:absolute;left:90px;right:90px;top:360px;bottom:-70px;border-radius:64px 64px 0 0;
+    background:linear-gradient(180deg,#F7F6FB 0%,#ECE8F8 100%);
+    box-shadow:0 40px 90px rgba(0,0,0,0.35);padding:80px 60px;overflow:hidden}
+  .lead{font-size:52px;font-weight:700;color:#1A1826;line-height:1.18;letter-spacing:-1px;margin-bottom:52px}
+  .b{display:flex;align-items:flex-start;gap:28px;margin:38px 0}
+  .ic{flex:0 0 auto;width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:800;color:#fff}
+  .yes{background:#4CAF82}
+  .no{background:#9A96A8}
+  .t{font-size:36px;color:#2C2A38;line-height:1.34}
+  .foot{margin-top:64px;font-size:32px;color:#5C53C9;font-weight:600;text-align:center}
+</style></head>
+<body>
+<div id="stage">
+  <div class="headline"><h2>Private by design</h2></div>
+  <div class="phone">
+    <div class="lead">Pause needs to know which app is open and for how long &mdash; nothing else.</div>
+    <div class="b"><div class="ic yes">&#10003;</div><div class="t">Reads only the app's name (e.g. &ldquo;Instagram&rdquo;) and your time in it.</div></div>
+    <div class="b"><div class="ic no">&times;</div><div class="t">Can't read your messages, see your screen, or know what you type.</div></div>
+    <div class="b"><div class="ic yes">&#10003;</div><div class="t">Everything stays on your phone &mdash; no account, no internet, no data collected.</div></div>
+    <div class="b"><div class="ic yes">&#10003;</div><div class="t">Runs quietly in the background &mdash; no nagging notification.</div></div>
+    <div class="foot">Nothing ever leaves your phone.</div>
+  </div>
+</div>
+</body></html>

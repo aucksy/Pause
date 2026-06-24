@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><style>
+  html,body{margin:0;padding:0}
+  *{box-sizing:border-box;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif}
+  #stage{position:relative;width:1080px;height:1920px;overflow:hidden;
+    background:linear-gradient(160deg,#4B43A8 0%,#352E86 60%,#241F5E 100%)}
+  .headline{position:absolute;top:96px;left:0;right:0;text-align:center;padding:0 80px}
+  .headline h2{margin:0;color:#fff;font-size:64px;font-weight:700;line-height:1.12;letter-spacing:-1px}
+  .phone{position:absolute;left:90px;right:90px;top:340px;bottom:-70px;border-radius:64px 64px 0 0;
+    background:radial-gradient(120% 80% at 50% 30%, #241F45 0%, #16141F 55%, #0E0D15 100%);
+    box-shadow:0 40px 90px rgba(0,0,0,0.45);overflow:hidden;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 64px;text-align:center}
+  .orb{width:300px;height:300px;border-radius:50%;margin-bottom:64px;
+    background:radial-gradient(circle at 38% 34%, #C4BCFF 0%, #7E74E8 45%, #4B43A8 100%);
+    box-shadow:0 0 90px rgba(124,116,232,0.55);display:flex;align-items:center;justify-content:center}
+  .msg{color:#F3F1FF;font-size:60px;font-weight:700;line-height:1.2;letter-spacing:-1px}
+  .cap{color:#B8B2D9;font-size:34px;margin-top:30px}
+  .btn{margin-top:80px;background:#C4BCFF;color:#241F5E;font-size:38px;font-weight:700;
+    padding:34px 86px;border-radius:48px}
+</style></head>
+<body>
+<div id="stage">
+  <div class="headline"><h2>A calm, full&#8209;screen<br>moment to choose</h2></div>
+  <div class="phone">
+    <div class="orb">
+      <svg width="150" height="150" viewBox="0 0 108 108" xmlns="http://www.w3.org/2000/svg">
+        <path d="M40,33h11a6,6 0 0 1 6,6v30a6,6 0 0 1 -6,6h-11a6,6 0 0 1 -6,-6v-30a6,6 0 0 1 6,-6z" fill="#FFFFFF"/>
+        <path d="M57,33h11a6,6 0 0 1 6,6v30a6,6 0 0 1 -6,6h-11a6,6 0 0 1 -6,-6v-30a6,6 0 0 1 6,-6z" fill="#F0ECFF"/>
+      </svg>
+    </div>
+    <div class="msg">Still scrolling?<br>You've got this.</div>
+    <div class="cap">15 minutes on Instagram</div>
+    <div class="btn">Continue</div>
+  </div>
+</div>
+</body></html>

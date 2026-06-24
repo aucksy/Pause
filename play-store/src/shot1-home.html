@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><style>
+  html,body{margin:0;padding:0}
+  *{box-sizing:border-box;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif}
+  #stage{position:relative;width:1080px;height:1920px;overflow:hidden;
+    background:linear-gradient(160deg,#6A5FD6 0%,#4B43A8 60%,#352E86 100%)}
+  .headline{position:absolute;top:96px;left:0;right:0;text-align:center;padding:0 80px}
+  .headline h2{margin:0;color:#fff;font-size:64px;font-weight:700;line-height:1.12;letter-spacing:-1px}
+  .phone{position:absolute;left:90px;right:90px;top:340px;bottom:-70px;border-radius:64px 64px 0 0;
+    background:linear-gradient(180deg,#F7F6FB 0%,#ECE8F8 100%);
+    box-shadow:0 40px 90px rgba(0,0,0,0.35);padding:64px 56px;overflow:hidden}
+  .app-title{font-size:62px;font-weight:700;color:#1A1826;letter-spacing:-1px}
+  .app-sub{font-size:30px;color:#49475A;margin-top:10px}
+  .card{background:#fff;border-radius:36px;padding:40px;margin-top:34px;
+    box-shadow:0 10px 30px rgba(26,24,38,0.06)}
+  .statusrow{display:flex;align-items:center;gap:22px}
+  .dot{width:22px;height:22px;border-radius:50%;background:#5C53C9}
+  .status{font-size:46px;font-weight:700;color:#1A1826}
+  .detail{font-size:30px;color:#49475A;margin-top:16px;line-height:1.35}
+  .switch{margin-left:auto;width:108px;height:62px;border-radius:34px;background:#5C53C9;position:relative}
+  .switch::after{content:"";position:absolute;right:6px;top:6px;width:50px;height:50px;border-radius:50%;background:#fff}
+  .label{font-size:34px;font-weight:600;color:#1A1826}
+  .muted{font-size:28px;color:#6B6878;margin-top:8px}
+  .apps{display:flex;gap:18px;margin-top:24px}
+  .appicon{width:80px;height:80px;border-radius:22px}
+  .ig{background:linear-gradient(135deg,#F58529,#DD2A7B,#8134AF)}
+  .yt{background:#FF0000}
+  .rd{background:#FF4500}
+  .tk{background:#111}
+  .row{display:flex;align-items:center}
+  .chev{margin-left:auto;color:#9A96A8;font-size:44px}
+</style></head>
+<body>
+<div id="stage">
+  <div class="headline"><h2>Notice when you've<br>scrolled too long</h2></div>
+  <div class="phone">
+    <div class="app-title">Pause</div>
+    <div class="app-sub">Interrupt the autopilot. Let yourself choose.</div>
+
+    <div class="card">
+      <div class="statusrow">
+        <div class="dot"></div>
+        <div class="status">Running</div>
+        <div class="switch"></div>
+      </div>
+      <div class="detail">Watching 4 apps, every 15 min.</div>
+    </div>
+
+    <div class="card">
+      <div class="row"><div class="label">Selected apps</div><div class="chev">›</div></div>
+      <div class="apps">
+        <div class="appicon ig"></div>
+        <div class="appicon yt"></div>
+        <div class="appicon rd"></div>
+        <div class="appicon tk"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row"><div><div class="label">Interruption interval</div><div class="muted">Every 15 minutes</div></div><div class="chev">›</div></div>
+    </div>
+
+    <div class="card">
+      <div class="row"><div><div class="label">How Pause watches</div><div class="muted">Usage access</div></div><div class="chev">›</div></div>
+    </div>
+  </div>
+</div>
+</body></html>
