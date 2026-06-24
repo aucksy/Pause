@@ -1,5 +1,6 @@
 package com.pause.app.domain.repository
 
+import com.pause.app.domain.model.DetectionMode
 import com.pause.app.domain.model.PauseSettings
 import kotlinx.coroutines.flow.Flow
 
@@ -25,4 +26,6 @@ interface SettingsRepository {
     suspend fun setShowImage(show: Boolean)
 
     suspend fun setShowText(show: Boolean)
+
+    suspend fun setDetectionMode(mode: DetectionMode)
 }

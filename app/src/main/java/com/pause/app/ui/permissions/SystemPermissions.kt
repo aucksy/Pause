@@ -12,17 +12,30 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.pause.app.core.PausePermissions
+import com.pause.app.domain.model.DetectionMode
 
-/** Snapshot of the two system permissions Pause relies on. */
+/** Snapshot of the system permissions Pause can rely on. */
 data class SystemPermissions(
     val accessibility: Boolean,
+    val usageAccess: Boolean,
     val overlay: Boolean,
 ) {
-    val allGranted: Boolean get() = accessibility && overlay
+    /** Whether everything needed for the chosen detection [mode] is granted. */
+    fun ready(mode: DetectionMode): Boolean = overlay && when (mode) {
+        DetectionMode.USAGE_ACCESS -> usageAccess
+        DetectionMode.ACCESSIBILITY -> accessibility
+    }
+
+    /** The detection permission the chosen [mode] needs (ignoring overlay). */
+    fun hasDetection(mode: DetectionMode): Boolean = when (mode) {
+        DetectionMode.USAGE_ACCESS -> usageAccess
+        DetectionMode.ACCESSIBILITY -> accessibility
+    }
 }
 
 private fun read(context: Context) = SystemPermissions(
     accessibility = PausePermissions.isAccessibilityServiceEnabled(context),
+    usageAccess = PausePermissions.hasUsageAccess(context),
     overlay = PausePermissions.canDrawOverlays(context),
 )
 

@@ -2,13 +2,22 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!--
-      The only sensitive permission Pause needs. It lets the app draw the full-screen
-      interruption overlay on top of whichever app the user is scrolling. Foreground-app
-      detection itself is handled by the Accessibility Service (declared below), which is
-      gated behind the system's BIND_ACCESSIBILITY_SERVICE permission.
-    -->
+    <!-- Draw the full-screen interruption overlay on top of the app being scrolled (always needed). -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <!--
+      Usage Access (default detection mode): read which app is in the foreground and for how long.
+      The user grants this via Settings → "Usage access"; only the foreground package name + timing
+      are ever read, and nothing leaves the device.
+    -->
+    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"
+        tools:ignore="ProtectedPermissions" />
+
+    <!-- The Usage-Access detector runs as a small foreground service (special use). -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <!-- Show the foreground-service status notification on Android 13+. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <!--
       Make the catalogued apps visible (Android 11+ package visibility) so Pause can show their
@@ -66,6 +75,20 @@
             <meta-data
                 android:name="android.accessibilityservice"
                 android:resource="@xml/accessibility_service_config" />
+        </service>
+
+        <!--
+          The default detector: a small foreground service that reads the foreground app via Usage
+          Access. It reads only the foreground package name + timing — never screen content — and
+          nothing leaves the device.
+        -->
+        <service
+            android:name=".service.UsageAccessMonitorService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Detects which app is in the foreground via Usage Access to interrupt long scrolling sessions. No data leaves the device." />
         </service>
 
     </application>

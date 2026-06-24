@@ -52,13 +52,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.pause.app.core.PausePermissions
 import com.pause.app.domain.model.AppCatalog
+import com.pause.app.domain.model.DetectionMode
 import com.pause.app.domain.model.IntervalOptions
 import com.pause.app.domain.model.MonitoringStatus
 import com.pause.app.domain.model.PauseSettings
 import com.pause.app.ui.AppViewModel
 import com.pause.app.ui.components.AppIcon
 import com.pause.app.ui.components.PauseCard
-import com.pause.app.ui.permissions.SystemPermissions
+import com.pause.app.ui.permissions.DetectionSetup
 import com.pause.app.ui.permissions.rememberSystemPermissions
 
 private val AmberAccent = Color(0xFFE0A458)
@@ -71,15 +72,18 @@ fun HomeScreen(
     val settings by viewModel.settings.collectAsStateWithLifecycle()
     val permissions = rememberSystemPermissions()
     val context = LocalContext.current
+    val mode = settings.detectionMode
+    val ready = permissions.ready(mode)
 
     val status = when {
-        !permissions.allGranted -> MonitoringStatus.NEEDS_PERMISSION
+        !ready -> MonitoringStatus.NEEDS_PERMISSION
         settings.isActivelyMonitoring -> MonitoringStatus.RUNNING
         else -> MonitoringStatus.PAUSED
     }
 
     var showAppPicker by remember { mutableStateOf(false) }
     var showIntervalPicker by remember { mutableStateOf(false) }
+    var showDetectionSheet by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -113,21 +117,14 @@ fun HomeScreen(
             StatusToggleCard(
                 status = status,
                 settings = settings,
-                permissionsGranted = permissions.allGranted,
+                permissionsGranted = ready,
                 onToggle = { viewModel.setEnabled(it) },
-                onNeedsPermission = {
-                    if (!permissions.accessibility) PausePermissions.openAccessibilitySettings(context)
-                    else PausePermissions.openOverlaySettings(context)
-                },
+                onNeedsPermission = { showDetectionSheet = true },
             )
 
-            if (!permissions.allGranted) {
+            if (!ready) {
                 Spacer(Modifier.height(14.dp))
-                PermissionBanner(
-                    permissions = permissions,
-                    onFixAccessibility = { PausePermissions.openAccessibilitySettings(context) },
-                    onFixOverlay = { PausePermissions.openOverlaySettings(context) },
-                )
+                SetupBanner(onClick = { showDetectionSheet = true })
             }
 
             Spacer(Modifier.height(14.dp))
@@ -140,6 +137,13 @@ fun HomeScreen(
             IntervalCard(
                 intervalMinutes = settings.intervalMinutes,
                 onClick = { showIntervalPicker = true },
+            )
+
+            Spacer(Modifier.height(14.dp))
+            DetectionCard(
+                mode = mode,
+                ready = ready,
+                onClick = { showDetectionSheet = true },
             )
 
             Spacer(Modifier.height(14.dp))
@@ -185,6 +189,36 @@ fun HomeScreen(
             )
         }
     }
+
+    if (showDetectionSheet) {
+        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        ModalBottomSheet(onDismissRequest = { showDetectionSheet = false }, sheetState = sheetState) {
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 24.dp),
+            ) {
+                Text("How Pause watches your time", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onSurface)
+                Spacer(Modifier.height(16.dp))
+                DetectionSetup(
+                    mode = mode,
+                    permissions = permissions,
+                    onPickMode = { viewModel.setDetectionMode(it) },
+                    onGrantDetection = {
+                        if (mode == DetectionMode.USAGE_ACCESS) {
+                            PausePermissions.openUsageAccessSettings(context)
+                        } else {
+                            PausePermissions.openAccessibilitySettings(context)
+                        }
+                    },
+                    onGrantOverlay = { PausePermissions.openOverlaySettings(context) },
+                )
+                Spacer(Modifier.height(24.dp))
+            }
+        }
+    }
 }
 
 @Composable
@@ -208,7 +242,7 @@ private fun StatusToggleCard(
         )
         MonitoringStatus.NEEDS_PERMISSION -> Triple(
             "Action needed",
-            "Grant the permissions below to begin.",
+            "Tap to finish setup.",
             AmberAccent,
         )
     }
@@ -248,13 +282,7 @@ private fun StatusToggleCard(
 }
 
 @Composable
-private fun PermissionBanner(
-    permissions: SystemPermissions,
-    onFixAccessibility: () -> Unit,
-    onFixOverlay: () -> Unit,
-) {
-    val onClick = if (!permissions.accessibility) onFixAccessibility else onFixOverlay
-    val what = if (!permissions.accessibility) "Enable accessibility access" else "Allow display over other apps"
+private fun SetupBanner(onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -268,12 +296,38 @@ private fun PermissionBanner(
         Icon(Icons.Rounded.LockOpen, contentDescription = null, tint = AmberAccent, modifier = Modifier.size(22.dp))
         Spacer(Modifier.width(12.dp))
         Text(
-            what,
+            "Finish setup — grant a permission",
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.weight(1f),
         )
         Icon(Icons.Rounded.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+}
+
+@Composable
+private fun DetectionCard(mode: DetectionMode, ready: Boolean, onClick: () -> Unit) {
+    val label = if (mode == DetectionMode.USAGE_ACCESS) "Usage access" else "Accessibility"
+    PauseCard(Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onClick)
+                .padding(20.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text("How Pause watches", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    if (ready) label else "$label — needs permission",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = if (ready) MaterialTheme.colorScheme.onSurfaceVariant else AmberAccent,
+                )
+            }
+            Spacer(Modifier.width(12.dp))
+            Icon(Icons.Rounded.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
     }
 }
 

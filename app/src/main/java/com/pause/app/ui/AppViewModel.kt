@@ -1,17 +1,24 @@
 package com.pause.app.ui
 
+import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.pause.app.core.PausePermissions
 import com.pause.app.data.system.CustomImageStore
+import com.pause.app.domain.model.DetectionMode
 import com.pause.app.domain.model.MessagePresets
 import com.pause.app.domain.model.PauseSettings
 import com.pause.app.domain.repository.SettingsRepository
+import com.pause.app.service.UsageAccessMonitorService
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -25,6 +32,7 @@ import javax.inject.Inject
 class AppViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val customImageStore: CustomImageStore,
+    @ApplicationContext private val appContext: Context,
 ) : ViewModel() {
 
     val settings: StateFlow<PauseSettings> = settingsRepository.settings
@@ -57,6 +65,27 @@ class AppViewModel @Inject constructor(
             }
             _startOnHome.value = first.onboardingComplete
         }
+        // Keep the Usage-Access foreground service running exactly when it should be.
+        settingsRepository.settings
+            .onEach { ensureMonitorService(it) }
+            .launchIn(viewModelScope)
+    }
+
+    /** Start/stop the Usage-Access monitor based on mode + monitoring + permission (called while foreground). */
+    private fun ensureMonitorService(settings: PauseSettings) {
+        val shouldRun = settings.detectionMode == DetectionMode.USAGE_ACCESS &&
+            settings.isActivelyMonitoring &&
+            PausePermissions.hasUsageAccess(appContext)
+        if (shouldRun) {
+            UsageAccessMonitorService.start(appContext)
+        } else {
+            UsageAccessMonitorService.stop(appContext)
+        }
+    }
+
+    /** Re-evaluate the monitor after the user returns from granting a permission. */
+    fun refreshMonitorService() = viewModelScope.launch {
+        ensureMonitorService(settingsRepository.snapshot())
     }
 
     fun setSelectedPackages(packages: Set<String>) = viewModelScope.launch {
@@ -110,6 +139,10 @@ class AppViewModel @Inject constructor(
 
     fun setShowText(show: Boolean) = viewModelScope.launch {
         settingsRepository.setShowText(show)
+    }
+
+    fun setDetectionMode(mode: DetectionMode) = viewModelScope.launch {
+        settingsRepository.setDetectionMode(mode)
     }
 
     /** Restore the interruption style to its defaults: bundled character, default message, both shown. */

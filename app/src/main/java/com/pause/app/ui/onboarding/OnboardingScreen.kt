@@ -40,16 +40,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.pause.app.core.PausePermissions
 import com.pause.app.domain.model.AppCatalog
 import com.pause.app.domain.model.AppDefinition
+import com.pause.app.domain.model.DetectionMode
 import com.pause.app.domain.model.IntervalOptions
 import com.pause.app.ui.AppViewModel
 import com.pause.app.ui.components.AppIcon
 import com.pause.app.ui.components.PauseCard
+import com.pause.app.ui.permissions.DetectionSetup
+import com.pause.app.ui.permissions.SystemPermissions
 import com.pause.app.ui.permissions.rememberSystemPermissions
 
 private const val STEP_COUNT = 3
@@ -66,7 +70,7 @@ fun OnboardingScreen(
     val canAdvance = when (step) {
         0 -> settings.selectedPackages.isNotEmpty()
         1 -> true
-        else -> permissions.allGranted
+        else -> permissions.ready(settings.detectionMode)
     }
 
     Box(
@@ -107,8 +111,9 @@ fun OnboardingScreen(
                             onSelect = viewModel::setInterval,
                         )
                         else -> StepPermissions(
-                            accessibilityGranted = permissions.accessibility,
-                            overlayGranted = permissions.overlay,
+                            mode = settings.detectionMode,
+                            permissions = permissions,
+                            onPickMode = { viewModel.setDetectionMode(it) },
                         )
                     }
                     Spacer(Modifier.height(16.dp))
@@ -188,32 +193,33 @@ private fun StepInterval(selected: Int, onSelect: (Int) -> Unit) {
 }
 
 @Composable
-private fun StepPermissions(accessibilityGranted: Boolean, overlayGranted: Boolean) {
-    val context = androidx.compose.ui.platform.LocalContext.current
+private fun StepPermissions(
+    mode: DetectionMode,
+    permissions: SystemPermissions,
+    onPickMode: (DetectionMode) -> Unit,
+) {
+    val context = LocalContext.current
     StepHeader(
-        title = "Two quick permissions",
-        subtitle = "Pause needs these to work. Nothing is collected, and nothing leaves your phone.",
+        title = "One last thing",
+        subtitle = "Choose how Pause notices your scrolling, then grant the two permissions.",
     )
-    PauseCard(Modifier.fillMaxWidth()) {
-        Column {
-            PermissionRow(
-                title = "Accessibility access",
-                description = "Lets Pause notice which app is in front. It never reads your screen.",
-                granted = accessibilityGranted,
-                onClick = { PausePermissions.openAccessibilitySettings(context) },
-            )
-            RowDivider()
-            PermissionRow(
-                title = "Display over other apps",
-                description = "Lets the gentle reminder appear on top of what you're scrolling.",
-                granted = overlayGranted,
-                onClick = { PausePermissions.openOverlaySettings(context) },
-            )
-        }
-    }
+    DetectionSetup(
+        mode = mode,
+        permissions = permissions,
+        onPickMode = onPickMode,
+        onGrantDetection = {
+            if (mode == DetectionMode.USAGE_ACCESS) {
+                PausePermissions.openUsageAccessSettings(context)
+            } else {
+                PausePermissions.openAccessibilitySettings(context)
+            }
+        },
+        onGrantOverlay = { PausePermissions.openOverlaySettings(context) },
+        modifier = Modifier.fillMaxWidth(),
+    )
     Spacer(Modifier.height(16.dp))
     Text(
-        "No account. No analytics. No login.",
+        "No account. No analytics. Nothing leaves your phone.",
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         textAlign = TextAlign.Center,
@@ -258,46 +264,6 @@ private fun ChoiceRow(label: String, selected: Boolean, onClick: () -> Unit) {
             modifier = Modifier.weight(1f),
         )
         SelectionIndicator(selected)
-    }
-}
-
-@Composable
-private fun PermissionRow(
-    title: String,
-    description: String,
-    granted: Boolean,
-    onClick: () -> Unit,
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 14.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Column(Modifier.weight(1f)) {
-            Text(title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
-            Spacer(Modifier.height(4.dp))
-            Text(
-                description,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-        Spacer(Modifier.width(12.dp))
-        if (granted) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    Icons.Rounded.Check,
-                    contentDescription = "Granted",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(20.dp),
-                )
-                Spacer(Modifier.width(6.dp))
-                Text("Granted", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
-            }
-        } else {
-            TextButton(onClick = onClick) { Text("Grant") }
-        }
     }
 }
 

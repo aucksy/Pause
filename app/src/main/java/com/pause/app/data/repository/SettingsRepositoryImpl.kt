@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
+import com.pause.app.domain.model.DetectionMode
 import com.pause.app.domain.model.IntervalOptions
 import com.pause.app.domain.model.MessagePresets
 import com.pause.app.domain.model.PauseSettings
@@ -34,6 +35,7 @@ class SettingsRepositoryImpl @Inject constructor(
         val OVERLAY_MESSAGE = stringPreferencesKey("overlay_message")
         val SHOW_IMAGE = booleanPreferencesKey("show_image")
         val SHOW_TEXT = booleanPreferencesKey("show_text")
+        val DETECTION_MODE = stringPreferencesKey("detection_mode")
     }
 
     override val settings: Flow<PauseSettings> = dataStore.data
@@ -50,6 +52,7 @@ class SettingsRepositoryImpl @Inject constructor(
             overlayMessage = p[Keys.OVERLAY_MESSAGE] ?: MessagePresets.default,
             showImage = p[Keys.SHOW_IMAGE] ?: true,
             showText = p[Keys.SHOW_TEXT] ?: true,
+            detectionMode = DetectionMode.fromName(p[Keys.DETECTION_MODE]),
         )
     }
 
@@ -87,5 +90,9 @@ class SettingsRepositoryImpl @Inject constructor(
 
     override suspend fun setShowText(show: Boolean) {
         dataStore.edit { it[Keys.SHOW_TEXT] = show }
+    }
+
+    override suspend fun setDetectionMode(mode: DetectionMode) {
+        dataStore.edit { it[Keys.DETECTION_MODE] = mode.name }
     }
 }
