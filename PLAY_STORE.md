@@ -65,7 +65,7 @@ keystore in this repo's CI is the **upload key**. Nothing to do here except be a
 > • Pick exactly which apps to watch — nothing else is touched.
 > • Set your own time limit, including a custom number of minutes.
 > • Personalise the reminder with your own image and message.
-> • Choose how Pause detects your usage: Usage Access (recommended) or Accessibility.
+> • Runs quietly in the background — no nagging notification to dismiss.
 >
 > Pause is private by design. It reads only which app is open and for how long — never your
 > screen, messages, or anything you type — and **nothing ever leaves your phone**. No account,
@@ -107,52 +107,19 @@ Pause does all detection **on-device** and transmits nothing, so:
 |---|---|---|
 | **Foreground service (special use)** | Justify: *"Detects the foreground app via Usage Access to interrupt long scrolling sessions; no data leaves the device."* | Android 14 requires this; Play asks for the justification at submission. Mirrors the manifest `PROPERTY_SPECIAL_USE_FGS_SUBTYPE`. |
 | **Usage Access (`PACKAGE_USAGE_STATS`)** | No separate Play "sensitive permission" form. The user grants it in system Settings. Make sure the listing clearly states the digital-wellbeing purpose (it does). | Appropriate-use permission for a screen-time app. |
-| **AccessibilityService** | ⚠️ **Policy-sensitive — see §6a.** | Triggers Play's accessibility review. |
 | **Display over other apps (`SYSTEM_ALERT_WINDOW`)** | No form; used only to draw the reminder. | — |
-| **Notifications (`POST_NOTIFICATIONS`)** | No form. | For the FGS status notification. |
 
-### 6a. Accessibility declaration — CHOSEN: ship both detectors
+Pause is **Usage-Access-only** — there is **no AccessibilityService**, so none of Play's
+accessibility declarations or reviews apply. It also does **not** request notification permission,
+so on Android 13+ the foreground service runs with no visible notification.
 
-Pause ships an **optional** `AccessibilityService` as an *alternative* detector. Google Play's
-2026 accessibility policy **flags any app that declares an accessibility service for review**, even
-when it's optional, and scrutinises non-disability uses. We are keeping **both** detectors on Play,
-so complete the accessibility declaration and be ready for a manual review.
+### 6a. No accessibility declaration needed
 
-**What makes this pass review:**
-
-1. **In-app Prominent Disclosure (already built).** The `DetectionSetup` explainer is shown
-   *before* the user is sent to the system grant, in plain language, stating exactly what is and is
-   not accessed ("reads only the app's name and your time in it"; "can't read your messages, see
-   your screen, or know what you type"; "everything stays on your phone"). This satisfies Play's
-   Prominent Disclosure & Consent requirement — don't remove or weaken it.
-2. **Accessibility is optional and user-chosen.** Usage Access is the default; the user must
-   deliberately pick Accessibility. Keep it that way.
-3. **The justification text below**, pasted into Play Console where asked, plus a short demo video
-   if the reviewer requests one.
-
-**Where to declare it:** Play Console → **Policy → App content**. Watch for an
-**"Accessibility / AccessibilityService"** or permissions-use declaration item (Play surfaces it
-when it detects `BIND_ACCESSIBILITY_SERVICE` in the manifest). Keep the store listing explicit that
-this is a digital-wellbeing / foreground-detection use.
-
-**Justification text to paste (verbatim):**
-
-> Pause is a digital-wellbeing app that interrupts long scrolling sessions. The optional
-> Accessibility service is used solely to detect which app is currently in the foreground (its
-> package name) so Pause knows when an app the user selected has been open long enough to show a
-> brief, full-screen reminder. It never reads screen content, text, passwords, or input
-> (`canRetrieveWindowContent` is false). It is an optional alternative to the default "Usage access"
-> detection method; the user explicitly chooses and enables it after an in-app, plain-language
-> disclosure of exactly what is and isn't accessed. No data ever leaves the device — there is no
-> account, network upload, analytics, or tracking.
-
-**If the reviewer asks for a demo video,** record a ~30s screen capture: the detection-method screen
-with the plain-English explainer → choosing Accessibility → the system enable screen → the overlay
-appearing after the interval. Upload it where the review message requests.
-
-> **Fallback if Play rejects:** ask me to add a `play` product flavor (~15 min) that strips the
-> accessibility service from the AAB — Usage Access is the default and does the same job, so Play
-> users lose nothing functional, and both detectors stay in the GitHub APK.
+As of v1.0.9 Pause uses **only** Usage Access — the AccessibilityService was removed because an
+enabled accessibility service makes some finance/banking apps refuse to run. So there is **nothing
+to declare for accessibility** and no manual accessibility review to clear. The in-app
+`DetectionSetup` explainer still provides Prominent Disclosure for Usage Access (plain-language,
+shown before the grant), which keeps the listing and the data-safety form consistent.
 
 ---
 

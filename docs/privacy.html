@@ -33,10 +33,9 @@
 
   <h2>Information Pause accesses (and never sends anywhere)</h2>
   <ul>
-    <li><strong>Which app is in the foreground, and for how long.</strong> Using your chosen
-      detection method — <em>Usage access</em> (Android's app-usage API) or the
-      <em>Accessibility service</em> — Pause reads only the package name of the app currently in
-      front (for example <code>com.instagram.android</code>) and how long it has been open. Pause
+    <li><strong>Which app is in the foreground, and for how long.</strong> Using Android's
+      <em>Usage access</em> API, Pause reads only the package name of the app currently in front
+      (for example <code>com.instagram.android</code>) and how long it has been open. Pause
       <strong>cannot and does not</strong> read the contents of your screen, your messages, your
       keystrokes, your passwords, or anything you type or view.</li>
     <li><strong>The list of apps you choose to monitor, and your settings.</strong> Stored locally on
@@ -47,12 +46,11 @@
 
   <h2>Permissions and why they are used</h2>
   <ul>
-    <li><strong>Usage access</strong> (default) — to know which app is open and for how long.</li>
-    <li><strong>Accessibility service</strong> (optional alternative) — same single purpose:
-      detecting the foreground app. Pause never uses it to read screen content.</li>
+    <li><strong>Usage access</strong> — to know which app is open and for how long.</li>
     <li><strong>Display over other apps</strong> — to show the reminder on top of the app.</li>
-    <li><strong>Foreground service + notification</strong> — in Usage-access mode, a small ongoing
-      notification keeps the detector running reliably in the background.</li>
+    <li><strong>Foreground service</strong> — keeps the detector running reliably in the background.
+      On Android 13 and newer it runs without any notification (it only appears in the system
+      "Active apps" list); on older versions a minimal, silent entry may appear.</li>
   </ul>
 
   <h2>Data sharing and selling</h2>

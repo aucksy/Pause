@@ -1,6 +1,6 @@
 What's new in this version
 
-• Choose how Pause watches your time: Usage access (recommended) or Accessibility.
-• Clear, plain-English explanation of exactly what Pause reads (only the app name + time), what it can't (your screen, messages, keystrokes), and that nothing leaves your phone.
-• Personalise the reminder: your own image + message, sticker-style text, and witty presets.
-• Real app icons in the picker, custom intervals, and lots of polish.
+• Pause now runs quietly with no persistent notification on Android 13+.
+• Simpler setup: one detection method (Usage access) — works alongside your banking and finance apps.
+• Clear, plain-English explanation of exactly what Pause reads (only the app name + time) and what it can't (your screen, messages, keystrokes). Nothing leaves your phone.
+• The reminder no longer pops up over a locked or off screen, and your scroll time counts even if an app was already open.

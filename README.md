@@ -17,12 +17,10 @@ accounts, no analytics, no logins, and nothing ever leaves the device.
 ## How it works
 
 ```
-Detection (user picks one):
-  • Usage Access  ──►  foreground service polls UsageStatsManager (~1×/sec)   ← default
-  • Accessibility ──►  TYPE_WINDOW_STATE_CHANGED events
-        │            (both report the package name only)
+Usage Access  ──►  foreground service polls UsageStatsManager (~1×/sec)
+        │          (reports the foreground package name only)
         ▼
-  SessionController  ──►  shared timing state machine (one absolute deadline per session)
+  SessionController  ──►  timing state machine (one absolute deadline per session)
         │  reaches the chosen interval while still in the app
         ▼
   OverlayController  ──►  full-screen WindowManager overlay (TYPE_APPLICATION_OVERLAY)
@@ -43,11 +41,11 @@ Detection (user picks one):
 ## Architecture
 
 Clean Architecture + MVVM, 100% Kotlin + Jetpack Compose (Material 3), Hilt for DI, DataStore for
-persistence. No database and no WorkManager. Detection runs one of two ways behind a shared
-`SessionController`: the default **Usage Access** mode uses a lightweight foreground service
-(`foregroundServiceType="specialUse"`) that polls `UsageStatsManager` about once a second; the
-optional **Accessibility** mode is purely event-driven. Either way nothing is persisted beyond the
-DataStore settings and the battery cost stays low.
+persistence. No database and no WorkManager. Detection uses Android's **Usage Access** API: a
+lightweight foreground service (`foregroundServiceType="specialUse"`) polls `UsageStatsManager`
+about once a second and feeds a `SessionController` timing state machine. The service holds no
+notification permission, so on Android 13+ it runs with no visible notification (only a system
+"Active apps" entry). Nothing is persisted beyond the DataStore settings and battery cost stays low.
 
 ```
 com.pause.app
@@ -58,8 +56,7 @@ com.pause.app
 ├── data/
 │   └── repository/       SettingsRepositoryImpl  (Preferences DataStore)
 ├── di/                   Hilt modules (DataStore, scope, bindings)
-├── service/              SessionController (shared engine) · UsageAccessMonitorService (default)
-│                         · PauseAccessibilityService (optional)
+├── service/              SessionController (engine) · UsageAccessMonitorService (poller)
 ├── overlay/              OverlayController · OverlayLifecycleOwner · PauseOverlay (Compose)
 └── ui/
     ├── theme/            Color · Type · Shape · Spacing · Theme
@@ -74,14 +71,13 @@ com.pause.app
 
 | Permission | Why | Declared / requested |
 |---|---|---|
-| Usage Access (`PACKAGE_USAGE_STATS`) | **Default** detector: which app is foreground and for how long (package + timing only) | granted in system Settings → *Usage access* |
-| Foreground service (`FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_SPECIAL_USE`) | Run the Usage-Access detector while monitoring | declared in manifest; subtype justified via `PROPERTY_SPECIAL_USE_FGS_SUBTYPE` |
-| Notifications (`POST_NOTIFICATIONS`) | Show the ongoing foreground-service status notification on Android 13+ | requested at runtime |
-| Accessibility Service | **Optional** alternative detector (package name only) | `BIND_ACCESSIBILITY_SERVICE` service + `res/xml/accessibility_service_config.xml` |
+| Usage Access (`PACKAGE_USAGE_STATS`) | Detect which app is foreground and for how long (package + timing only) | granted in system Settings → *Usage access* |
+| Foreground service (`FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_SPECIAL_USE`) | Run the detector while monitoring | declared in manifest; subtype justified via `PROPERTY_SPECIAL_USE_FGS_SUBTYPE` |
 | Display over other apps (`SYSTEM_ALERT_WINDOW`) | Draw the interruption overlay above the app | requested in onboarding |
 
-The detector you pick and the overlay permission are guided through onboarding and re-checked every
-time the app resumes.
+Pause deliberately does **not** request notification permission, so on Android 13+ the foreground
+service runs with no visible notification. Both permissions above are guided through onboarding and
+re-checked every time the app resumes.
 
 ---
 
