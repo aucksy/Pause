@@ -17,10 +17,12 @@ accounts, no analytics, no logins, and nothing ever leaves the device.
 ## How it works
 
 ```
-Accessibility Service  ──►  foreground-app changes (package name only)
-        │
+Detection (user picks one):
+  • Usage Access  ──►  foreground service polls UsageStatsManager (~1×/sec)   ← default
+  • Accessibility ──►  TYPE_WINDOW_STATE_CHANGED events
+        │            (both report the package name only)
         ▼
-  Session timer (one delayed coroutine per continuous session)
+  SessionController  ──►  shared timing state machine (one absolute deadline per session)
         │  reaches the chosen interval while still in the app
         ▼
   OverlayController  ──►  full-screen WindowManager overlay (TYPE_APPLICATION_OVERLAY)
@@ -30,17 +32,22 @@ Accessibility Service  ──►  foreground-app changes (package name only)
                                Continue button armed after a 3-second countdown
 ```
 
-* Leaving the monitored app **cancels and resets** the timer. Returning starts a fresh count.
+* Leaving the monitored app — including turning the screen off or locking the device — **cancels
+  and resets** the timer. Returning starts a fresh count.
 * The keyboard and the status-bar shade do **not** count as leaving (they're filtered out).
 * After you tap **Continue**, Pause re-arms for another interval so it keeps gently checking in.
-* Detection reads **only the foreground package name** — `canRetrieveWindowContent` is `false`,
-  so Pause never sees the content of your screen.
+* Detection reads **only the foreground package name** — in Accessibility mode
+  `canRetrieveWindowContent` is `false`, and Usage Access exposes only package + timing — so Pause
+  never sees the content of your screen.
 
 ## Architecture
 
 Clean Architecture + MVVM, 100% Kotlin + Jetpack Compose (Material 3), Hilt for DI, DataStore for
-persistence. No database, no WorkManager, no foreground service — everything is event-driven, so
-the battery cost is negligible.
+persistence. No database and no WorkManager. Detection runs one of two ways behind a shared
+`SessionController`: the default **Usage Access** mode uses a lightweight foreground service
+(`foregroundServiceType="specialUse"`) that polls `UsageStatsManager` about once a second; the
+optional **Accessibility** mode is purely event-driven. Either way nothing is persisted beyond the
+DataStore settings and the battery cost stays low.
 
 ```
 com.pause.app
@@ -51,7 +58,8 @@ com.pause.app
 ├── data/
 │   └── repository/       SettingsRepositoryImpl  (Preferences DataStore)
 ├── di/                   Hilt modules (DataStore, scope, bindings)
-├── service/              PauseAccessibilityService  ← the engine
+├── service/              SessionController (shared engine) · UsageAccessMonitorService (default)
+│                         · PauseAccessibilityService (optional)
 ├── overlay/              OverlayController · OverlayLifecycleOwner · PauseOverlay (Compose)
 └── ui/
     ├── theme/            Color · Type · Shape · Spacing · Theme
@@ -66,10 +74,14 @@ com.pause.app
 
 | Permission | Why | Declared / requested |
 |---|---|---|
-| Accessibility Service | Learn which app is foreground (package name only) | `BIND_ACCESSIBILITY_SERVICE` service + `res/xml/accessibility_service_config.xml` |
-| Display over other apps | Draw the interruption overlay above the app | `SYSTEM_ALERT_WINDOW`, requested in onboarding |
+| Usage Access (`PACKAGE_USAGE_STATS`) | **Default** detector: which app is foreground and for how long (package + timing only) | granted in system Settings → *Usage access* |
+| Foreground service (`FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_SPECIAL_USE`) | Run the Usage-Access detector while monitoring | declared in manifest; subtype justified via `PROPERTY_SPECIAL_USE_FGS_SUBTYPE` |
+| Notifications (`POST_NOTIFICATIONS`) | Show the ongoing foreground-service status notification on Android 13+ | requested at runtime |
+| Accessibility Service | **Optional** alternative detector (package name only) | `BIND_ACCESSIBILITY_SERVICE` service + `res/xml/accessibility_service_config.xml` |
+| Display over other apps (`SYSTEM_ALERT_WINDOW`) | Draw the interruption overlay above the app | requested in onboarding |
 
-Both are guided through Step 3 of onboarding and re-checked every time the app resumes.
+The detector you pick and the overlay permission are guided through onboarding and re-checked every
+time the app resumes.
 
 ---
 

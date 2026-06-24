@@ -1,11 +1,19 @@
 package com.pause.app
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -30,6 +38,22 @@ class MainActivity : ComponentActivity() {
             // Null until the persisted onboarding flag has actually been read; hold the splash.
             val startOnHome by viewModel.startOnHome.collectAsStateWithLifecycle()
             splash.setKeepOnScreenCondition { startOnHome == null }
+
+            // Ask once for notification permission on Android 13+, so the Usage-Access foreground
+            // service's ongoing status notification is shown right away (without it the system
+            // defers the notification). Declining changes nothing else — detection still works.
+            val context = LocalContext.current
+            val notificationPermission = rememberLauncherForActivityResult(
+                ActivityResultContracts.RequestPermission(),
+            ) { /* result ignored: the FGS runs either way */ }
+            LaunchedEffect(Unit) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                    ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) !=
+                    PackageManager.PERMISSION_GRANTED
+                ) {
+                    notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
 
             // When the user returns from granting a permission in system Settings, (re)start the
             // Usage-Access monitor if it should now be running.

@@ -1,6 +1,7 @@
 package com.pause.app.service
 
 import android.content.Context
+import android.os.PowerManager
 import android.os.SystemClock
 import android.provider.Settings
 import com.pause.app.domain.model.AppCatalog
@@ -31,6 +32,7 @@ class SessionController(
     @Volatile private var settings: PauseSettings = PauseSettings.DEFAULT
     private var currentPackage: String? = null
     private var sessionPackage: String? = null
+    private var sessionStart: Long = 0L
     private var sessionDeadline: Long = 0L
     private var countdownJob: Job? = null
     private var leaveJob: Job? = null
@@ -49,16 +51,30 @@ class SessionController(
         val intervalChanged = previous.intervalMinutes != updated.intervalMinutes
         val membershipChanged = (pkg in previous.selectedPackages) != (pkg in updated.selectedPackages)
         when {
-            isMonitored(pkg) && sessionPackage != pkg -> startSession(pkg)
-            sessionPackage == pkg && intervalChanged -> startSession(pkg)
+            // App de-selected mid-session — stop watching it.
             sessionPackage == pkg && membershipChanged && !isMonitored(pkg) -> {
                 clearSession()
                 dismissOverlay()
             }
+            // Newly selected (or first seen) monitored app — start its session.
+            isMonitored(pkg) && sessionPackage != pkg -> startSession(pkg)
+            // Interval changed mid-session — move the deadline relative to the ORIGINAL start so the
+            // time already spent still counts (lengthening keeps elapsed time; shortening below it
+            // lets armCountdown fire at once). Re-confirming the same interval no longer postpones it.
+            sessionPackage == pkg && intervalChanged && isMonitored(pkg) -> {
+                sessionDeadline = sessionStart + updated.intervalMinutes * 60_000L
+                armCountdown()
+            }
         }
     }
 
-    fun onForegroundChanged(pkg: String) {
+    /**
+     * A new foreground app was observed. [sinceElapsed] is the [SystemClock.elapsedRealtime] at
+     * which it actually came to the front (defaults to now): the poll-based detector passes the
+     * real entry time so an app that was already open when monitoring started counts the time
+     * already spent in it, instead of restarting the clock from zero.
+     */
+    fun onForegroundChanged(pkg: String, sinceElapsed: Long = SystemClock.elapsedRealtime()) {
         // Ignore our own windows (the overlay) and transient surfaces (keyboard, status-bar shade).
         if (pkg == ownPackage || pkg in ignoredPackages) return
         if (pkg == currentPackage) return
@@ -71,9 +87,22 @@ class SessionController(
                 cancelLeave()
                 resumeOrFireSession()
             }
-            isMonitored(pkg) -> startSession(pkg)
+            isMonitored(pkg) -> startSession(pkg, sinceElapsed)
             sessionPackage != null -> scheduleLeave()
         }
+    }
+
+    /**
+     * The foreground app went away with no replacement (the screen turned off or the device
+     * locked). In Usage-Access mode the platform emits no new foreground event for this, so without
+     * this signal the armed countdown would keep running and fire the overlay over a blank/locked
+     * screen. Ending the session here also means returning to the app starts a fresh count.
+     */
+    fun onForegroundLost() {
+        if (currentPackage == null && sessionPackage == null) return
+        currentPackage = null
+        dismissOverlay()
+        clearSession()
     }
 
     /** Tear everything down (the feeding service is stopping or the mode changed away). */
@@ -86,11 +115,14 @@ class SessionController(
     private fun isMonitored(pkg: String): Boolean =
         settings.isActivelyMonitoring && pkg in settings.selectedPackages
 
-    private fun startSession(pkg: String) {
+    private fun startSession(pkg: String, since: Long = SystemClock.elapsedRealtime()) {
         cancelLeave()
         cancelCountdown()
         sessionPackage = pkg
-        sessionDeadline = SystemClock.elapsedRealtime() + settings.intervalMinutes * 60_000L
+        // Anchor to when the app actually came to the foreground (so time already spent counts),
+        // but never in the future — a skewed/late timestamp must not push the deadline out.
+        sessionStart = since.coerceAtMost(SystemClock.elapsedRealtime())
+        sessionDeadline = sessionStart + settings.intervalMinutes * 60_000L
         armCountdown()
     }
 
@@ -124,6 +156,15 @@ class SessionController(
 
     private fun showOverlay(pkg: String) {
         if (!Settings.canDrawOverlays(context)) return
+        // Last line of defence: never raise the overlay while the screen is off or locked. In
+        // Usage-Access mode a screen-off "leave" emits no foreground event, so if onForegroundLost
+        // was missed the countdown could otherwise fire onto a blank screen. Drop the session so the
+        // user gets a fresh count when they come back.
+        val power = context.getSystemService(Context.POWER_SERVICE) as? PowerManager
+        if (power?.isInteractive == false) {
+            clearSession()
+            return
+        }
         overlayShowing = true
         val current = settings
         overlayController.show(
@@ -157,6 +198,7 @@ class SessionController(
         cancelCountdown()
         cancelLeave()
         sessionPackage = null
+        sessionStart = 0L
         sessionDeadline = 0L
     }
 

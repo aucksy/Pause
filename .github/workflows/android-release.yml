@@ -28,6 +28,9 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      # 'true' only when the Google Play service-account secret is configured.
+      HAS_PLAY: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON != '' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -123,3 +126,22 @@ jobs:
           name: pause-release
           path: dist/*
           if-no-files-found: error
+
+      # --- Google Play (internal track) ---
+      # Runs only on a signed tag build AND when the PLAY_SERVICE_ACCOUNT_JSON secret exists.
+      # continue-on-error keeps the GitHub Release green even if Play isn't set up yet (e.g. the
+      # very first release, before the app + store listing exist in Play Console). Once the app is
+      # created and the service account is granted access, this uploads the AAB to the Internal
+      # testing track with the notes from distribution/whatsnew/. Promote to Closed/Production in
+      # Play Console.
+      - name: Publish to Google Play (internal testing)
+        if: ${{ startsWith(github.ref, 'refs/tags/') && env.HAS_PLAY == 'true' && steps.keystore.outputs.signed == 'true' }}
+        continue-on-error: true
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.pause.app
+          releaseFiles: app/build/outputs/bundle/release/*.aab
+          track: internal
+          status: completed
+          whatsNewDirectory: distribution/whatsnew

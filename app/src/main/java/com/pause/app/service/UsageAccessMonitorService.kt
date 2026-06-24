@@ -7,11 +7,14 @@ import android.app.PendingIntent
 import android.app.Service
 import android.app.usage.UsageEvents
 import android.app.usage.UsageStatsManager
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
+import android.os.SystemClock
 import android.view.inputmethod.InputMethodManager
 import androidx.core.content.ContextCompat
 import com.pause.app.MainActivity
@@ -53,6 +56,17 @@ class UsageAccessMonitorService : Service() {
     private var pollJob: Job? = null
     private var lastQueryEnd = 0L
     private var started = false
+    private var screenReceiverRegistered = false
+
+    // Screen-off / device-lock emit no MOVE_TO_FOREGROUND, so the poll loop can't see them. Treat
+    // them as the user leaving, so the session ends instead of firing the overlay onto a dark screen.
+    private val screenOffReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == Intent.ACTION_SCREEN_OFF && ::controller.isInitialized) {
+                controller.onForegroundLost()
+            }
+        }
+    }
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -65,6 +79,8 @@ class UsageAccessMonitorService : Service() {
             ownPackage = packageName,
             ignoredPackages = ignoredPackages,
         )
+        runCatching { registerReceiver(screenOffReceiver, IntentFilter(Intent.ACTION_SCREEN_OFF)) }
+            .onSuccess { screenReceiverRegistered = true }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -120,7 +136,12 @@ class UsageAccessMonitorService : Service() {
             }
         }
         lastQueryEnd = now
-        latestPackage?.let { controller.onForegroundChanged(it) }
+        latestPackage?.let { pkg ->
+            // Convert the event's wall-clock timestamp to elapsedRealtime so the controller can
+            // count time the user already spent in an app that was open before this poll.
+            val entryElapsed = SystemClock.elapsedRealtime() - (now - latestTime)
+            controller.onForegroundChanged(pkg, entryElapsed)
+        }
     }
 
     private fun promoteToForeground() {
@@ -170,6 +191,10 @@ class UsageAccessMonitorService : Service() {
 
     override fun onDestroy() {
         pollJob?.cancel()
+        if (screenReceiverRegistered) {
+            runCatching { unregisterReceiver(screenOffReceiver) }
+            screenReceiverRegistered = false
+        }
         if (::controller.isInitialized) controller.stop()
         scope.cancel()
         super.onDestroy()
