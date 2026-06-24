@@ -52,7 +52,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.pause.app.core.PausePermissions
 import com.pause.app.domain.model.AppCatalog
-import com.pause.app.domain.model.DetectionMode
 import com.pause.app.domain.model.IntervalOptions
 import com.pause.app.domain.model.MonitoringStatus
 import com.pause.app.domain.model.PauseSettings
@@ -72,8 +71,7 @@ fun HomeScreen(
     val settings by viewModel.settings.collectAsStateWithLifecycle()
     val permissions = rememberSystemPermissions()
     val context = LocalContext.current
-    val mode = settings.detectionMode
-    val ready = permissions.ready(mode)
+    val ready = permissions.ready
 
     val status = when {
         !ready -> MonitoringStatus.NEEDS_PERMISSION
@@ -141,7 +139,6 @@ fun HomeScreen(
 
             Spacer(Modifier.height(14.dp))
             DetectionCard(
-                mode = mode,
                 ready = ready,
                 onClick = { showDetectionSheet = true },
             )
@@ -203,16 +200,8 @@ fun HomeScreen(
                 Text("How Pause watches your time", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onSurface)
                 Spacer(Modifier.height(16.dp))
                 DetectionSetup(
-                    mode = mode,
                     permissions = permissions,
-                    onPickMode = { viewModel.setDetectionMode(it) },
-                    onGrantDetection = {
-                        if (mode == DetectionMode.USAGE_ACCESS) {
-                            PausePermissions.openUsageAccessSettings(context)
-                        } else {
-                            PausePermissions.openAccessibilitySettings(context)
-                        }
-                    },
+                    onGrantUsageAccess = { PausePermissions.openUsageAccessSettings(context) },
                     onGrantOverlay = { PausePermissions.openOverlaySettings(context) },
                 )
                 Spacer(Modifier.height(24.dp))
@@ -306,8 +295,8 @@ private fun SetupBanner(onClick: () -> Unit) {
 }
 
 @Composable
-private fun DetectionCard(mode: DetectionMode, ready: Boolean, onClick: () -> Unit) {
-    val label = if (mode == DetectionMode.USAGE_ACCESS) "Usage access" else "Accessibility"
+private fun DetectionCard(ready: Boolean, onClick: () -> Unit) {
+    val label = "Usage access"
     PauseCard(Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier

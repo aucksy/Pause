@@ -8,6 +8,6 @@ enum class MonitoringStatus {
     /** Permissions granted but the user has toggled Pause off (or picked no apps). */
     PAUSED,
 
-    /** A required permission (Accessibility / Display over other apps) is missing. */
+    /** A required permission (Usage access / Display over other apps) is missing. */
     NEEDS_PERMISSION,
 }

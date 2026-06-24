@@ -24,7 +24,7 @@ import javax.inject.Singleton
  * up with a lifecycle/savedstate/viewmodel owner, and tears it down again.
  *
  * All window mutations are marshalled onto the main thread, so it is safe to call from the
- * accessibility service's coroutines.
+ * monitor service's coroutines.
  */
 @Singleton
 class OverlayController @Inject constructor(

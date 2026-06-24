@@ -20,7 +20,6 @@ import androidx.core.content.ContextCompat
 import com.pause.app.MainActivity
 import com.pause.app.R
 import com.pause.app.core.Constants
-import com.pause.app.domain.model.DetectionMode
 import com.pause.app.domain.repository.SettingsRepository
 import com.pause.app.overlay.OverlayController
 import dagger.hilt.android.AndroidEntryPoint
@@ -37,10 +36,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
- * Usage-Access foreground detection (the default, Play-friendly mode). A small foreground service
+ * Usage-Access foreground detection (Pause's only detection method). A small foreground service
  * polls [UsageStatsManager] every second for the current foreground app and forwards changes to the
- * shared [SessionController]. It runs only while the user's chosen mode is [DetectionMode.USAGE_ACCESS];
- * if the mode changes away (or monitoring is no longer possible) it stops itself.
+ * [SessionController]. It runs while monitoring is on; when monitoring is turned off (or no apps are
+ * selected) it stops itself. With no notification permission it shows no notification on Android 13+.
  */
 @AndroidEntryPoint
 class UsageAccessMonitorService : Service() {
@@ -96,12 +95,10 @@ class UsageAccessMonitorService : Service() {
     private fun observeSettings() {
         settingsRepository.settings
             .onEach { updated ->
-                if (updated.detectionMode != DetectionMode.USAGE_ACCESS) {
-                    controller.stop()
-                    stopSelf()
-                    return@onEach
-                }
                 controller.onSettings(updated)
+                // Nothing left to watch (disabled or no apps chosen) — stand down. The ViewModel
+                // also stops us, but self-stopping keeps the service from lingering if it doesn't.
+                if (!updated.isActivelyMonitoring) stopSelf()
             }
             .launchIn(scope)
     }
@@ -151,7 +148,10 @@ class UsageAccessMonitorService : Service() {
             val existing = manager.getNotificationChannel(channelId)
             if (existing == null) {
                 manager.createNotificationChannel(
-                    NotificationChannel(channelId, "Pause monitoring", NotificationManager.IMPORTANCE_LOW).apply {
+                    // IMPORTANCE_MIN: silent, no status-bar icon, collapsed at the bottom of the
+                    // shade. On Android 13+ (no notification permission requested) it isn't shown at
+                    // all — the service only appears in the system "Active apps" list.
+                    NotificationChannel(channelId, "Pause monitoring", NotificationManager.IMPORTANCE_MIN).apply {
                         description = "Lets Pause notice long scrolling sessions in the background."
                         setShowBadge(false)
                     },

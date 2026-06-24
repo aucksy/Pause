@@ -16,8 +16,6 @@
     <!-- The Usage-Access detector runs as a small foreground service (special use). -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
-    <!-- Show the foreground-service status notification on Android 13+. -->
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <!--
       Make the catalogued apps visible (Android 11+ package visibility) so Pause can show their
@@ -60,27 +58,10 @@
         </activity>
 
         <!--
-          The heart of the product. The system binds this service to deliver foreground-app
-          change events. We only read the package name of the active window — never its
-          content — to know when a monitored app has been on screen long enough to interrupt.
-        -->
-        <service
-            android:name=".service.PauseAccessibilityService"
-            android:exported="true"
-            android:label="@string/accessibility_service_label"
-            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
-            <intent-filter>
-                <action android:name="android.accessibilityservice.AccessibilityService" />
-            </intent-filter>
-            <meta-data
-                android:name="android.accessibilityservice"
-                android:resource="@xml/accessibility_service_config" />
-        </service>
-
-        <!--
-          The default detector: a small foreground service that reads the foreground app via Usage
-          Access. It reads only the foreground package name + timing — never screen content — and
-          nothing leaves the device.
+          The detector: a small foreground service that reads the foreground app via Usage Access.
+          It reads only the foreground package name + timing — never screen content — and nothing
+          leaves the device. With no notification permission it shows no notification on Android 13+
+          (only a system "Active apps" entry).
         -->
         <service
             android:name=".service.UsageAccessMonitorService"

@@ -1,9 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Pause</string>
-
-    <!-- Shown in Settings → Accessibility next to the Pause toggle. -->
-    <string name="accessibility_service_label">Pause</string>
-    <string name="accessibility_service_summary">Notices when you\'ve been scrolling a chosen app for a while, then gently interrupts.</string>
-    <string name="accessibility_service_description">Pause watches only which app is currently in the foreground so it can gently interrupt long scrolling sessions in the apps you choose.\n\nPause never reads, records, stores, or transmits the content on your screen. There is no account, no analytics, and nothing leaves your device.</string>
 </resources>

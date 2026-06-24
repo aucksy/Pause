@@ -13,9 +13,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
- * The detection-agnostic interruption engine. It is fed foreground-app changes (from either the
- * Accessibility service or the Usage-Access monitor service) and the current settings, and owns the
- * timing state machine + overlay.
+ * The interruption engine. It is fed foreground-app changes (from the Usage-Access monitor service)
+ * and the current settings, and owns the timing state machine + overlay.
  *
  * A session is tracked as an absolute deadline (elapsedRealtime when to interrupt), so a brief
  * excursion — a share sheet, a dialog, PiP — within a short grace window does NOT throw away the

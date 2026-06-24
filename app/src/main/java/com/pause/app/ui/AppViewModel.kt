@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pause.app.core.PausePermissions
 import com.pause.app.data.system.CustomImageStore
-import com.pause.app.domain.model.DetectionMode
 import com.pause.app.domain.model.MessagePresets
 import com.pause.app.domain.model.PauseSettings
 import com.pause.app.domain.repository.SettingsRepository
@@ -71,10 +70,9 @@ class AppViewModel @Inject constructor(
             .launchIn(viewModelScope)
     }
 
-    /** Start/stop the Usage-Access monitor based on mode + monitoring + permission (called while foreground). */
+    /** Start/stop the Usage-Access monitor based on monitoring state + permission (called while foreground). */
     private fun ensureMonitorService(settings: PauseSettings) {
-        val shouldRun = settings.detectionMode == DetectionMode.USAGE_ACCESS &&
-            settings.isActivelyMonitoring &&
+        val shouldRun = settings.isActivelyMonitoring &&
             PausePermissions.hasUsageAccess(appContext)
         if (shouldRun) {
             UsageAccessMonitorService.start(appContext)
@@ -139,10 +137,6 @@ class AppViewModel @Inject constructor(
 
     fun setShowText(show: Boolean) = viewModelScope.launch {
         settingsRepository.setShowText(show)
-    }
-
-    fun setDetectionMode(mode: DetectionMode) = viewModelScope.launch {
-        settingsRepository.setDetectionMode(mode)
     }
 
     /** Restore the interruption style to its defaults: bundled character, default message, both shown. */

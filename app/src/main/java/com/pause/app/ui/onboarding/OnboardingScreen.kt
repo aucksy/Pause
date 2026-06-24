@@ -47,7 +47,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.pause.app.core.PausePermissions
 import com.pause.app.domain.model.AppCatalog
 import com.pause.app.domain.model.AppDefinition
-import com.pause.app.domain.model.DetectionMode
 import com.pause.app.domain.model.IntervalOptions
 import com.pause.app.ui.AppViewModel
 import com.pause.app.ui.components.AppIcon
@@ -70,7 +69,7 @@ fun OnboardingScreen(
     val canAdvance = when (step) {
         0 -> settings.selectedPackages.isNotEmpty()
         1 -> true
-        else -> permissions.ready(settings.detectionMode)
+        else -> permissions.ready
     }
 
     Box(
@@ -110,11 +109,7 @@ fun OnboardingScreen(
                             selected = settings.intervalMinutes,
                             onSelect = viewModel::setInterval,
                         )
-                        else -> StepPermissions(
-                            mode = settings.detectionMode,
-                            permissions = permissions,
-                            onPickMode = { viewModel.setDetectionMode(it) },
-                        )
+                        else -> StepPermissions(permissions = permissions)
                     }
                     Spacer(Modifier.height(16.dp))
                 }
@@ -194,26 +189,16 @@ private fun StepInterval(selected: Int, onSelect: (Int) -> Unit) {
 
 @Composable
 private fun StepPermissions(
-    mode: DetectionMode,
     permissions: SystemPermissions,
-    onPickMode: (DetectionMode) -> Unit,
 ) {
     val context = LocalContext.current
     StepHeader(
         title = "One last thing",
-        subtitle = "Choose how Pause notices your scrolling, then grant the two permissions.",
+        subtitle = "Grant the two permissions so Pause can notice your scrolling and gently step in.",
     )
     DetectionSetup(
-        mode = mode,
         permissions = permissions,
-        onPickMode = onPickMode,
-        onGrantDetection = {
-            if (mode == DetectionMode.USAGE_ACCESS) {
-                PausePermissions.openUsageAccessSettings(context)
-            } else {
-                PausePermissions.openAccessibilitySettings(context)
-            }
-        },
+        onGrantUsageAccess = { PausePermissions.openUsageAccessSettings(context) },
         onGrantOverlay = { PausePermissions.openOverlaySettings(context) },
         modifier = Modifier.fillMaxWidth(),
     )

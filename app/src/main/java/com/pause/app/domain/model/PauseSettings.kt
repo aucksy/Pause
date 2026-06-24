@@ -16,8 +16,6 @@ data class PauseSettings(
     val showImage: Boolean = true,
     /** Whether the overlay shows the text (the message + session caption). */
     val showText: Boolean = true,
-    /** How Pause detects the foreground app. */
-    val detectionMode: DetectionMode = DetectionMode.DEFAULT,
 ) {
     /** Monitoring can only actually do anything when it's on AND at least one app is chosen. */
     val isActivelyMonitoring: Boolean get() = isEnabled && selectedPackages.isNotEmpty()
@@ -32,7 +30,6 @@ data class PauseSettings(
             overlayMessage = MessagePresets.default,
             showImage = true,
             showText = true,
-            detectionMode = DetectionMode.DEFAULT,
         )
     }
 }
