@@ -4,8 +4,8 @@ Package name : com.pause.app
 Default language : English (United States) — en-US
 App or game : App
 Free or paid : Free
-Category : Productivity   (alt: Health & Fitness)
-Tags (pick up to 5) : Productivity, Self-improvement, Digital wellbeing, Focus
+Category : Health & Fitness   (alt: Productivity)
+Tags (pick up to 5) : Digital wellbeing, Self-improvement, Focus, Productivity
 Contact email : aakashpahuja1990@gmail.com
 Website (optional) : https://github.com/aucksy/Pause
 Privacy policy URL : https://aucksy.github.io/Pause/privacy.html

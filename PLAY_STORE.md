@@ -52,7 +52,7 @@ keystore in this repo's CI is the **upload key**. Nothing to do here except be a
 | App name | Pause |
 | Short description | A gentle nudge to stop doom-scrolling. Pick your apps, set a timer, get a full-screen reminder. |
 | Full description | (below) |
-| App category | **Productivity** (or Health & Fitness → Digital Wellbeing) |
+| App category | **Health & Fitness** (Digital Wellbeing) — alt: Productivity |
 | Email | aakashpahuja1990@gmail.com |
 
 **Full description (draft):**
