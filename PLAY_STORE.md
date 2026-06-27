@@ -71,8 +71,11 @@ keystore in this repo's CI is the **upload key**. Nothing to do here except be a
 > screen, messages, or anything you type — and **nothing ever leaves your phone**. No account,
 > no ads, no tracking.
 
-**Graphics required:** app icon (512×512), feature graphic (1024×500), at least 2 phone
-screenshots (the `Marketing/` folder has assets to source these from).
+**Graphics required** — all already generated and sized correctly, in the repo's **`play-store/`**
+folder (and copied to `Marketing/Play Store Assets/`):
+`icon-512.png` (512×512), `feature-graphic-1024x500.png` (1024×500), and four 1080×1920
+screenshots (`screenshot-1-home.png` … `screenshot-4-personalize.png`).
+Regenerate any time with `play-store/render.ps1`.
 
 ---
 
