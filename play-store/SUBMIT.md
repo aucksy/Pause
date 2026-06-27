@@ -33,7 +33,7 @@ Paste from `listing.txt`: app name, short description, full description. Upload 
 `feature-graphic-1024x500.png`, and the four screenshots. Save.
 
 ## Step 4 — Store settings (category + contact)
-Category **Health & Fitness**; contact email **aakashpahuja1990@gmail.com**. Save.
+Category **Health & Fitness**; contact email **simpleapps108@gmail.com**. Save.
 
 ## Step 5 — App content (Policy → App content)
 Fill each card using `listing.txt`:
