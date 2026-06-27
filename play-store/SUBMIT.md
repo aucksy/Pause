@@ -15,7 +15,7 @@ The deep-dive reference (service account, App-signing, etc.) is in the repo's `P
 | `icon-512.png` (512×512) | App icon |
 | `feature-graphic-1024x500.png` (1024×500) | Feature graphic |
 | `screenshot-1-home.png` … `screenshot-4-personalize.png` (1080×1920) | Phone screenshots |
-| (download) `Pause-v1.0.9.aab` | App bundle — https://github.com/aucksy/Pause/releases/download/v1.0.9/Pause-v1.0.9.aab |
+| (download) `Pause-v1.0.10.aab` | App bundle — https://github.com/aucksy/Pause/releases/download/v1.0.10/Pause-v1.0.10.aab |
 
 ---
 
@@ -46,7 +46,7 @@ Fill each card using `listing.txt`:
 
 ## Step 6 — Upload the build to a Closed testing track
 **Test and release → Testing → Closed testing → Create track** (or use the default Alpha) →
-**Create new release** → upload **Pause-v1.0.9.aab** → release notes: paste
+**Create new release** → upload **Pause-v1.0.10.aab** → release notes: paste
 `distribution/whatsnew/whatsnew-en-US` → Save → Review → **Start rollout to Closed testing**.
 > Play App Signing is on by default — accept it. Pause has no Google sign-in, so there's no SHA-1
 > to register anywhere.

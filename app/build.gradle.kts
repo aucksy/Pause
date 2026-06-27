@@ -37,11 +37,13 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.pause.app"
+        // Play/install identity. Independent of `namespace` (which stays com.pause.app for the
+        // R class / code package) — com.pause.app was already taken on the Play Store.
+        applicationId = "com.pauseapp.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 10
-        versionName = "1.0.9"
+        versionCode = 11
+        versionName = "1.0.10"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }

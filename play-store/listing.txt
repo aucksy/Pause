@@ -1,6 +1,6 @@
 PAUSE — GOOGLE PLAY STORE LISTING (copy-paste fields)
 ======================================================
-Package name : com.pause.app
+Package name : com.pauseapp.app
 Default language : English (United States) — en-US
 App or game : App
 Free or paid : Free
@@ -57,7 +57,7 @@ Phone screenshots (1080 x 1920)  -> screenshot-1-home.png
                                     screenshot-3-private.png
                                     screenshot-4-personalize.png
 App bundle to upload (.aab)      -> from the GitHub release:
-   https://github.com/aucksy/Pause/releases/download/v1.0.9/Pause-v1.0.9.aab
+   https://github.com/aucksy/Pause/releases/download/v1.0.10/Pause-v1.0.10.aab
 
 
 =====================================================================

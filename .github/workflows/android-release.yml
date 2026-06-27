@@ -4,7 +4,7 @@ name: Android Release
 # the GitHub mobile app) with the APK attached, when you push a tag like `v1.0.0`.
 #
 # Signing: add these repository secrets (Settings → Secrets and variables → Actions) to get a
-# proper SIGNED release (applicationId com.pause.app):
+# proper SIGNED release (applicationId com.pauseapp.app):
 #   KEYSTORE_BASE64    base64 of your release keystore
 #   KEYSTORE_PASSWORD  keystore password
 #   KEY_ALIAS          key alias
@@ -111,9 +111,9 @@ jobs:
         run: |
           TAG="${{ github.ref_name }}"
           if [ "$SIGNED" = "true" ]; then
-            NOTES="Signed release build of **Pause** (\`com.pause.app\`). Download the \`.apk\` below and install it on your phone (allow installs from unknown sources). The \`.aab\` is for Google Play upload."
+            NOTES="Signed release build of **Pause** (\`com.pauseapp.app\`). Download the \`.apk\` below and install it on your phone (allow installs from unknown sources). The \`.aab\` is for Google Play upload."
           else
-            NOTES="⚠️ Installable **debug** build (\`com.pause.app.debug\`) — published because \`KEYSTORE_BASE64\` was missing or invalid. It installs and runs fine. For a proper signed release, fix the keystore secret (see the workflow file header for the exact PowerShell command) and re-push the tag."
+            NOTES="⚠️ Installable **debug** build (\`com.pauseapp.app.debug\`) — published because \`KEYSTORE_BASE64\` was missing or invalid. It installs and runs fine. For a proper signed release, fix the keystore secret (see the workflow file header for the exact PowerShell command) and re-push the tag."
           fi
           # Idempotent: replace any existing release for this tag (keeps the tag itself).
           gh release delete "$TAG" --yes 2>/dev/null || true
@@ -140,7 +140,7 @@ jobs:
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
-          packageName: com.pause.app
+          packageName: com.pauseapp.app
           releaseFiles: app/build/outputs/bundle/release/*.aab
           track: internal
           status: completed

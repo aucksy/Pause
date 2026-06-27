@@ -177,8 +177,8 @@ workflow `track:` to your closed track name).
 
 ```
 # bump versionCode (+1) and versionName in app/build.gradle.kts, commit, then:
-git tag v1.0.11
-git push origin v1.0.11
+git tag v1.0.9
+git push origin v1.0.9
 ```
 
 GitHub Actions then:
